@@ -1,0 +1,9 @@
+Compétences de bruitage ajoutées au plugin (toutes gratuites, licence MIT) :
+- skills/openverse-sfx : Varnan-Tech, github.com/varnan-tech/opendirectory (MIT, voir skills/openverse-sfx/LICENSE)
+- skills/earshot et skills/real-sound : Leon Lin, github.com/Leonxlnx/earshot (MIT, voir LICENSE dans chaque dossier)
+
+Sons de assets/sfx : enregistrements Freesound en licence CC0 1.0 (domaine public), trouvés via l'API Openverse.
+Aucune mention n'est obligatoire ; les auteurs sont quand même crédités dans assets/sfx/credits.json.
+
+SFX Kit (Wyzowl) : assets/sfx/kit/*.wav et assets/sfx/kit-sounds.json, CC0 1.0 (voir assets/sfx/kit/LICENSE-CC0.txt),
+https://huggingface.co/datasets/wyzowl/sfx-kit. Fiches traduites dans assets/sfx/catalogue.json (scripts/sons_kit.py).

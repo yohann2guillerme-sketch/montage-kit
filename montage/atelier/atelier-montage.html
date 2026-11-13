@@ -1,0 +1,428 @@
+<title>Atelier montage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout : une seule colonne étroite, façon appli de téléphone ; le formulaire en haut, les vidéos dessous. */
+:root{
+  --bg:#F3F4F7; --card:#FFFFFF; --fg:#151821; --muted:#5D6373; --line:#DDE0E8;
+  --accent:#2F55F4; --accent-fg:#FFFFFF; --soft:#E7ECFF;
+  --ok:#137A4B; --ok-bg:#DDF3E8; --warn:#9A5B00; --warn-bg:#FCEFD6; --bad:#B42318; --bad-bg:#FDE4E1;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1117; --card:#181B24; --fg:#EEF0F6; --muted:#9AA1B2; --line:#2A2F3C;
+  --accent:#7B93FF; --accent-fg:#0F1117; --soft:#1F2640;
+  --ok:#5FD49B; --ok-bg:#12301F; --warn:#F2B455; --warn-bg:#33260F; --bad:#FF8A7A; --bad-bg:#3A1714; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1117; --card:#181B24; --fg:#EEF0F6; --muted:#9AA1B2; --line:#2A2F3C;
+  --accent:#7B93FF; --accent-fg:#0F1117; --soft:#1F2640;
+  --ok:#5FD49B; --ok-bg:#12301F; --warn:#F2B455; --warn-bg:#33260F; --bad:#FF8A7A; --bad-bg:#3A1714; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:620px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.3rem;font-weight:600}
+p{margin:0}
+.lead{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.step{display:flex;flex-direction:column;gap:10px}
+.q{font-weight:600;display:flex;gap:10px;align-items:baseline}
+.q b{font-family:var(--display);color:var(--accent);font-size:1.05rem;min-width:1.2em}
+.hint{color:var(--muted);font-size:.9rem}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:22px 16px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:6px;align-items:center}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--soft)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.thumb{position:relative;aspect-ratio:9/16;max-width:100%;border-radius:10px;overflow:hidden;background:var(--line)}
+.thumb img,.thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:4px;right:4px;border:0;border-radius:99px;width:26px;height:26px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:14px}
+.thumb span{position:absolute;left:4px;bottom:4px;font-size:.7rem;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:1px 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:99px;padding:9px 14px;font:inherit;font-size:.95rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
+textarea,input[type=text]{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:12px;padding:12px;font:inherit;resize:vertical}
+textarea{min-height:84px}
+textarea:focus,input:focus,.chip:focus-visible,.btn:focus-visible,.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:14px;padding:15px 18px;font:inherit;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-fg);font-size:1.05rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);font-size:.95rem;padding:11px 14px}
+.msg{border-radius:12px;padding:12px 14px;font-size:.95rem}
+.msg.info{background:var(--soft)}
+.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.msg.bad{background:var(--bad-bg);color:var(--bad)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.list{display:flex;flex-direction:column;gap:14px}
+.job{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.job-top div{min-width:0}
+.job h3{margin:0;font-size:1.02rem;font-weight:600;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.85rem}
+.pill{flex:none;font-size:.78rem;font-weight:600;border-radius:99px;padding:4px 10px;white-space:nowrap}
+.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.pill.run{background:var(--soft);color:var(--accent)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.job video,.job img.result{width:100%;max-height:70vh;border-radius:12px;background:#000;object-fit:contain}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .btn{flex:1 1 180px}
+details{font-size:.92rem}
+details summary{cursor:pointer;color:var(--muted)}
+details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.empty{text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);border-radius:18px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Atelier montage</h1>
+    <p class="lead">Envoie tes photos ou vidéos, réponds à 3 questions, et ton Claude monte la vidéo pour toi. Tu la récupères ici quand elle est prête.</p>
+  </header>
+
+  <div id="unavailable" class="msg bad" hidden></div>
+  <div id="branchement" class="msg warn" hidden>Ton Claude n'est pas encore branché à cet atelier. Demande-lui : « Suis montage/atelier/MODE-EMPLOI.md, partie Brancher l'atelier ». Tu peux déjà envoyer tes fichiers : ils partiront au montage dès que c'est branché.</div>
+
+  <form id="form" class="card" novalidate>
+    <h2>Nouvelle vidéo</h2>
+
+    <div class="step">
+      <label class="drop" id="drop" for="files">
+        <input type="file" id="files" accept="video/*,image/*" multiple>
+        <strong>Ajouter tes photos ou vidéos</strong>
+        <span class="hint">Touche ici ou glisse tes fichiers. Ils partent en pleine qualité ; une longue vidéo met un peu de temps à envoyer.</span>
+      </label>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+
+    <div class="step">
+      <div class="q"><b>1</b><span>Quelle durée ?</span></div>
+      <div class="chips" id="duree" role="group" aria-label="Durée">
+        <button type="button" class="chip" data-v="15 s">15 s</button>
+        <button type="button" class="chip" data-v="30 s" aria-pressed="true">30 s</button>
+        <button type="button" class="chip" data-v="45 s">45 s</button>
+        <button type="button" class="chip" data-v="60 s">1 min</button>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="q"><b>2</b><span>Quel objectif ?</span></div>
+      <div class="chips" id="objectif" role="group" aria-label="Objectif">
+        <button type="button" class="chip" data-v="Faire venir des clients au magasin">Faire venir au magasin</button>
+        <button type="button" class="chip" data-v="Montrer un produit">Montrer un produit</button>
+        <button type="button" class="chip" data-v="Annoncer une promo ou un événement">Promo ou événement</button>
+        <button type="button" class="chip" data-v="Faire connaître la boutique">Faire connaître la boutique</button>
+      </div>
+      <input type="text" id="objectif-libre" placeholder="Ou écris ton objectif">
+    </div>
+
+    <div class="step">
+      <label class="q" for="contenu"><b>3</b><span>Que doit contenir la vidéo ?</span></label>
+      <textarea id="contenu" placeholder="Ex. : les nouvelles chaussettes en laine, un conseil pour bien les choisir, finir sur la devanture du magasin"></textarea>
+    </div>
+
+    <div class="step">
+      <label class="q" for="autre"><b>+</b><span>Autre demande <span class="hint">(facultatif)</span></span></label>
+      <textarea id="autre" placeholder="Ex. : sous-titres, pas de musique, mettre le logo à la fin"></textarea>
+    </div>
+
+    <div id="progress" class="step" hidden>
+      <div class="bar"><i id="bar"></i></div>
+      <p class="hint" id="progress-text"></p>
+    </div>
+    <div id="form-msg" class="msg bad" hidden></div>
+
+    <button class="btn" id="send" type="submit">Lancer le montage</button>
+  </form>
+
+  <section style="display:flex;flex-direction:column;gap:12px">
+    <h2>Mes vidéos</h2>
+    <div class="list" id="list"><div class="empty">Chargement de tes vidéos…</div></div>
+  </section>
+</div>
+
+<script>
+(function(){
+const $ = id => document.getElementById(id);
+const SERVEUR = "Claude Code Remote";          // connecteur qui réveille la session de montage du compte
+const MORCEAU = 18 * 1024 * 1024;              // 20 Mo par fichier dans l'atelier : les gros fichiers partent en morceaux, sans perte
+const TYPES_OK = ["image/png","image/jpeg","image/gif","image/webp","video/mp4","video/webm"];
+let db=null, assets=null, sample=null, downloads=null, mcp=null;
+let branchement=null;
+let picked = []; // {file, url, kind}
+let jobs = [];
+
+const STATUTS = {
+  preparation:{t:"Préparation", c:"run"},
+  a_envoyer:{t:"Pas encore parti", c:"wait"},
+  en_attente:{t:"Envoyé à ton Claude", c:"wait"},
+  en_montage:{t:"Montage en cours", c:"run"},
+  modification:{t:"Modification envoyée", c:"wait"},
+  terminee:{t:"Prête", c:"ok"},
+  erreur:{t:"Problème", c:"bad"}
+};
+
+/* ---------- choix ---------- */
+function chipGroup(id){
+  $(id).addEventListener("click", e=>{
+    const b=e.target.closest(".chip"); if(!b) return;
+    $(id).querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    if(id==="objectif") $("objectif-libre").value="";
+  });
+}
+chipGroup("duree"); chipGroup("objectif");
+$("objectif-libre").addEventListener("input",()=>{ if($("objectif-libre").value) $("objectif").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false")); });
+const val = id => { const b=$(id).querySelector('[aria-pressed="true"]'); return b?b.dataset.v:""; };
+
+/* ---------- fichiers ---------- */
+function addFiles(list){
+  for(const f of list){
+    const kind = (f.type.startsWith("video")||/\.(mov|m4v|mp4)$/i.test(f.name)) ? "video" : (f.type.startsWith("image")||/\.(heic|heif)$/i.test(f.name)) ? "image" : null;
+    if(!kind) continue;
+    picked.push({file:f, url:URL.createObjectURL(f), kind});
+  }
+  drawThumbs();
+}
+function drawThumbs(){
+  const t=$("thumbs"); t.textContent="";
+  picked.forEach((p,i)=>{
+    const d=document.createElement("div"); d.className="thumb";
+    const m=document.createElement(p.kind==="video"?"video":"img");
+    m.src=p.url; if(p.kind==="video"){m.muted=true;m.playsInline=true;m.preload="metadata";}
+    const x=document.createElement("button"); x.type="button"; x.textContent="×"; x.setAttribute("aria-label","Retirer "+p.file.name);
+    x.onclick=()=>{URL.revokeObjectURL(p.url);picked.splice(i,1);drawThumbs();};
+    const s=document.createElement("span"); s.textContent=p.kind==="video"?"vidéo":"photo";
+    d.append(m,x,s); t.append(d);
+  });
+}
+$("files").addEventListener("change",e=>{addFiles(e.target.files); e.target.value="";});
+const drop=$("drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>addFiles(e.dataTransfer.files));
+
+/* ---------- aperçus pour la fiche (petites images, le fichier lui-même part en entier) ---------- */
+function loadMedia(url, kind){
+  return new Promise((ok,ko)=>{
+    if(kind==="image"){const i=new Image(); i.onload=()=>ok(i); i.onerror=()=>ko(new Error("image illisible")); i.src=url; return;}
+    const v=document.createElement("video"); v.muted=true; v.playsInline=true; v.preload="auto"; v.src=url;
+    v.onloadedmetadata=()=>ok(v); v.onerror=()=>ko(new Error("vidéo illisible par le navigateur"));
+  });
+}
+async function framesFor(p, n=3){
+  try{
+    const m=await loadMedia(p.url,p.kind);
+    const shots=[]; const c=document.createElement("canvas");
+    const w=p.kind==="video"?m.videoWidth:m.naturalWidth, h=p.kind==="video"?m.videoHeight:m.naturalHeight;
+    const k=Math.min(1,768/Math.max(w,h)); c.width=Math.round(w*k); c.height=Math.round(h*k);
+    const g=c.getContext("2d");
+    const times = p.kind==="video" ? Array.from({length:n},(_,i)=>(m.duration||1)*(i+.5)/n) : [0];
+    for(const t of times){
+      if(p.kind==="video"){ await new Promise(r=>{m.onseeked=r; m.currentTime=t;}); }
+      g.drawImage(m,0,0,c.width,c.height);
+      shots.push(await new Promise(r=>c.toBlob(r,"image/jpeg",.8)));
+    }
+    return {shots, duree: p.kind==="video"?Math.round(m.duration*10)/10:null, largeur:w, hauteur:h};
+  }catch(e){ return {shots:[], duree:null, largeur:null, hauteur:null}; }
+}
+
+/* ---------- envoi en pleine qualité, en morceaux ---------- */
+async function envoyerFichier(p, onProg){
+  const f=p.file;
+  const type = TYPES_OK.includes(f.type) ? f.type : (p.kind==="image" ? "image/jpeg" : "video/mp4");
+  const morceaux=[];
+  for(let debut=0; debut<f.size; debut+=MORCEAU){
+    const fin=Math.min(f.size, debut+MORCEAU);
+    const up=await assets.upload(new Blob([f.slice(debut,fin)],{type}), {type});
+    morceaux.push(up.id); onProg(fin/f.size);
+  }
+  return {morceaux, nom:f.name, type:p.kind, mime:f.type||"", octets:f.size};
+}
+
+/* ---------- réveiller la session de montage du compte ---------- */
+async function prevenirClaude(id){
+  if(!mcp) throw {code:"server_not_connected"};
+  if(!branchement || !branchement.trigger_id) throw {code:"pas_branche"};
+  await mcp.callTool(SERVEUR, "fire_trigger", {trigger_id: branchement.trigger_id, text: "DEMANDE " + id});
+}
+function raison(e){
+  switch(e && e.code){
+    case "pas_branche": return "Ton Claude n'est pas encore branché à l'atelier (mode d'emploi, partie « Brancher l'atelier »). Appuie sur « Relancer » une fois que c'est fait.";
+    case "server_not_connected": return "Le connecteur « Claude Code Remote » manque. Ajoute-le dans claude.ai, Réglages, Connecteurs, puis appuie sur « Relancer ».";
+    case "needs_reauth": return "La connexion à « Claude Code Remote » a expiré. Reconnecte-le dans claude.ai, Réglages, Connecteurs, puis appuie sur « Relancer ».";
+    case "approval_required": return "Il faut autoriser l'atelier à prévenir ton Claude : appuie sur « Relancer » et accepte.";
+    case "blocked_by_policy": return "Ton compte ne laisse pas cette page lancer le montage. Demande à ton Claude : « Monte les demandes en attente de l'atelier » (mode d'emploi, partie « Si le bouton ne marche pas »).";
+    case "tool_error": return "Ton Claude n'a pas pu démarrer (" + (e.message||"erreur") + "). Appuie sur « Relancer ».";
+    default: return "Ton Claude n'a pas répondu. Appuie sur « Relancer » dans un moment.";
+  }
+}
+async function lancer(id, statutOk){
+  const ref=db.collection("demandes").doc(id);
+  try{ await prevenirClaude(id); await ref.update({statut:statutOk, message:"Ton Claude a reçu la demande. Compte 5 à 15 minutes.", majLe:new Date().toISOString()}); }
+  catch(e){ await ref.update({statut:"a_envoyer", relance:statutOk, message:raison(e), majLe:new Date().toISOString()}).catch(()=>{}); }
+}
+
+/* ---------- formulaire ---------- */
+function progress(pct, text){ $("progress").hidden=false; $("bar").style.width=Math.round(pct*100)+"%"; $("progress-text").textContent=text; }
+function formError(t){ const m=$("form-msg"); m.textContent=t; m.hidden=!t; }
+
+$("form").addEventListener("submit", async e=>{
+  e.preventDefault(); formError("");
+  const objectif = $("objectif-libre").value.trim() || val("objectif");
+  const contenu = $("contenu").value.trim();
+  if(!picked.length) return formError("Ajoute au moins une photo ou une vidéo.");
+  if(!objectif) return formError("Choisis un objectif (question 2).");
+  if(!contenu) return formError("Dis ce que la vidéo doit contenir (question 3).");
+  if(!db||!assets) return formError("L'envoi n'est pas disponible ici. Ouvre cette page dans claude.ai, sur le compte qui l'a publiée.");
+  const btn=$("send"); btn.disabled=true;
+  try{
+    const fichiers=[]; const images=[]; const n=picked.length;
+    for(let i=0;i<n;i++){
+      const p=picked[i]; const base=i/n, part=1/n;
+      progress(base, `Fichier ${i+1} sur ${n} : préparation…`);
+      const fr=await framesFor(p); images.push(...fr.shots);
+      const f=await envoyerFichier(p, x=>progress(base+part*x, `Fichier ${i+1} sur ${n} : envoi (${Math.round(x*100)} %), garde la page ouverte`));
+      fichiers.push({...f, dureeSec:fr.duree, largeur:fr.largeur, hauteur:fr.hauteur});
+    }
+    progress(.98,"Envoi de la demande…");
+    const demande={ duree:val("duree"), objectif, contenu, autre:$("autre").value.trim() };
+    const ref=db.collection("demandes").doc();
+    const maintenant=new Date().toISOString();
+    await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
+    resetForm();
+    const fiche = await ficheDeMontage(demande, fichiers, images.slice(0,8));
+    if(fiche) await ref.update({ fiche }).catch(()=>{});
+    await lancer(ref.id, "en_attente");
+    progress(1,"C'est envoyé. Ta vidéo apparaît dans « Mes vidéos ».");
+    setTimeout(()=>{$("progress").hidden=true;},4000);
+  }catch(err){
+    const m={too_large:"un fichier est trop lourd", unsupported_type:"ce type de fichier n'est pas accepté (essaie en MP4 ou JPEG)", quota_or_state:"l'atelier est plein : supprime d'anciennes vidéos"}[err&&err.code];
+    formError("L'envoi a échoué : "+(m||(err&&err.message)||"connexion coupée")+". Réessaie ; si ça recommence, demande à ton Claude.");
+    $("progress").hidden=true;
+  }finally{ btn.disabled=false; }
+});
+function resetForm(){
+  picked.forEach(p=>URL.revokeObjectURL(p.url)); picked=[]; drawThumbs();
+  $("contenu").value=""; $("autre").value=""; $("objectif-libre").value="";
+  $("objectif").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false"));
+}
+
+/* Premier jet de fiche, rédigé par le Claude du compte ; la session de montage s'en sert comme point de départ. */
+async function ficheDeMontage(d, fichiers, images){
+  if(!sample) return null;
+  const consigne = `Tu es monteur de Reels verticaux (9:16) pour un commerce local en France.
+Demande du commerçant :
+- Durée voulue : ${d.duree}
+- Objectif : ${d.objectif}
+- Contenu attendu : ${d.contenu}
+- Autre demande : ${d.autre||"aucune"}
+Fichiers reçus, dans l'ordre : ${fichiers.map((f,i)=>`${i+1}. ${f.type} « ${f.nom} »${f.dureeSec?` (${f.dureeSec} s)`:""}`).join(" ; ")}.
+Les images jointes sont des aperçus de ces fichiers, dans le même ordre.
+N'invente aucun prix, aucune remise ni promotion : reprends seulement ce qui est écrit dans la demande.
+Rédige une fiche de montage courte et concrète, en français. Réponds uniquement en JSON avec ces clés :
+{"accroche": "texte des 2 premières secondes", "plans": [{"fichier": numéro, "debut_s": nombre, "fin_s": nombre, "texte_ecran": "texte ou vide"}], "fin": "texte ou appel à l'action final", "musique": "ambiance", "remarques": "ce qui manque ou à vérifier"}`;
+  try{
+    const opts={ modelTier:"default" };
+    if(images.length){ try{ const l=await sample.limits(); if(l&&l.images) opts.images=images.slice(0, l.images.maxCount||images.length); }catch(e){} }
+    return await sample.json(consigne, opts);
+  }catch(e){ return {erreur: e&&e.code||"indisponible"}; }
+}
+
+/* ---------- liste ---------- */
+function fmtDate(s){ try{ return new Date(s).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } }
+function bouton(txt, cls, fn){ const b=document.createElement("button"); b.type="button"; b.className=cls; b.textContent=txt; b.onclick=()=>fn(b); return b; }
+function render(){
+  const L=$("list"); L.textContent="";
+  if(!jobs.length){ const e=document.createElement("div"); e.className="empty"; e.textContent="Aucune vidéo pour l'instant. Remplis le formulaire au-dessus pour lancer la première."; L.append(e); return; }
+  for(const j of jobs){
+    const card=document.createElement("article"); card.className="job";
+    const top=document.createElement("div"); top.className="job-top";
+    const info=document.createElement("div");
+    const h=document.createElement("h3"); h.textContent=(j.objectif||"Vidéo")+" · "+(j.duree||"");
+    const m=document.createElement("p"); m.className="meta"; m.textContent=`${(j.fichiers||[]).length} fichier(s) · envoyé ${fmtDate(j.creeLe)}`;
+    info.append(h,m);
+    const st=STATUTS[j.statut]||STATUTS.en_attente;
+    const pill=document.createElement("span"); pill.className="pill "+st.c; pill.textContent=st.t;
+    top.append(info,pill); card.append(top);
+
+    const c=document.createElement("p"); c.className="hint"; c.textContent=j.contenu||""; card.append(c);
+    if(j.message){ const mm=document.createElement("div"); mm.className="msg "+(j.statut==="erreur"?"bad":"info"); mm.textContent=j.message; card.append(mm); }
+
+    if(j.statut==="a_envoyer"||j.statut==="erreur"){
+      const a=document.createElement("div"); a.className="actions";
+      a.append(bouton("Relancer","btn ghost", async b=>{ b.disabled=true; await lancer(j.id, j.relance||((j.modifications||[]).length?"modification":"en_attente")); b.disabled=false; }));
+      card.append(a);
+    }
+
+    if(j.resultat && j.resultat.asset_id && (j.statut==="terminee"||j.statut==="modification"||j.statut==="en_montage")){
+      const src="/_blob/"+j.resultat.asset_id;
+      let media;
+      if((j.resultat.type||"").startsWith("image/")){ media=document.createElement("img"); media.className="result"; media.alt="Résultat du montage"; }
+      else { media=document.createElement("video"); media.controls=true; media.playsInline=true; media.preload="metadata"; }
+      media.src=src; card.append(media);
+    }
+    if(j.statut==="terminee" && j.resultat && j.resultat.asset_id){
+      const a=document.createElement("div"); a.className="actions";
+      const box=document.createElement("div"); box.className="step"; box.hidden=true;
+      a.append(bouton("Récupérer la vidéo","btn", b=>recuperer(j,b)),
+               bouton("Ajouter une modification","btn ghost", ()=>{ box.hidden=!box.hidden; if(!box.hidden) ta.focus(); }));
+      card.append(a);
+      const ta=document.createElement("textarea"); ta.id="modif-"+j.id; ta.placeholder="Ex. : couper la fin, texte plus gros, plus court";
+      const note=document.createElement("p"); note.className="hint";
+      const go=bouton("Envoyer la modification","btn", async b=>{ const t=ta.value.trim(); if(!t){note.textContent="Écris ce qu'il faut changer.";return;}
+        b.disabled=true; try{ const mods=(j.modifications||[]).concat([{texte:t, le:new Date().toISOString()}]);
+          await db.collection("demandes").doc(j.id).update({modifications:mods, statut:"modification", message:"", majLe:new Date().toISOString()});
+          await lancer(j.id, "modification"); }
+        catch(e){ note.textContent="L'envoi a échoué, réessaie."; b.disabled=false; } });
+      box.append(ta,go,note); card.append(box);
+    }
+    if((j.modifications||[]).length){
+      const d=document.createElement("details"); const s=document.createElement("summary"); s.textContent=`Modifications demandées (${j.modifications.length})`;
+      const ul=document.createElement("ul"); j.modifications.forEach(x=>{const li=document.createElement("li"); li.textContent=`${fmtDate(x.le)} : ${x.texte}`; ul.append(li);});
+      d.append(s,ul); card.append(d);
+    }
+    if(j.fiche && !j.fiche.erreur){
+      const d=document.createElement("details"); const s=document.createElement("summary"); s.textContent="Fiche de montage préparée par Claude";
+      const ul=document.createElement("ul");
+      const add=(k,v)=>{ if(!v) return; const li=document.createElement("li"); li.textContent=k+" : "+v; ul.append(li); };
+      add("Accroche",j.fiche.accroche);
+      (j.fiche.plans||[]).forEach((p,i)=>add("Plan "+(i+1),`fichier ${p.fichier}, ${p.debut_s ?? "?"}–${p.fin_s ?? "?"} s${p.texte_ecran?` · « ${p.texte_ecran} »`:""}`));
+      add("Fin",j.fiche.fin); add("Musique",j.fiche.musique); add("À vérifier",j.fiche.remarques);
+      d.append(s,ul); card.append(d);
+    }
+    L.append(card);
+  }
+}
+async function recuperer(j, btn){
+  const nom=(j.resultat.nom||"video-montee.mp4");
+  btn.disabled=true; const old=btn.textContent; btn.textContent="Téléchargement…";
+  try{
+    if(!downloads) throw new Error("indisponible");
+    const blob=await (await fetch("/_blob/"+j.resultat.asset_id)).blob();
+    await downloads.save({filename:nom, data:blob});
+    btn.textContent="Vidéo enregistrée";
+  }catch(e){
+    btn.textContent = (e&&e.code==="declined") ? old : "Échec : touche la vidéo puis ⋯ › Télécharger";
+  }finally{ btn.disabled=false; setTimeout(()=>{btn.textContent=old;},5000); }
+}
+
+/* ---------- démarrage ---------- */
+(async()=>{
+  const c=window.claude;
+  if(!c||!c.use){ $("list").innerHTML='<div class="empty">Ouvre cette page dans claude.ai pour voir tes vidéos.</div>'; return; }
+  [db,assets,sample,downloads,mcp]=await Promise.all(["db","assets","sample","downloads","mcp"].map(n=>c.use(n).catch(()=>null)));
+  if(!db||!assets){
+    const u=$("unavailable"); u.hidden=false;
+    u.textContent = !db ? "Connecte-toi à claude.ai pour utiliser l'atelier." : "Tu peux voir les vidéos, mais seul le compte qui a publié l'atelier peut en envoyer.";
+  }
+  if(!db){ $("list").innerHTML='<div class="empty">Connecte-toi pour voir tes vidéos.</div>'; return; }
+  const timer=setTimeout(()=>{ if(!jobs.length) $("list").innerHTML='<div class="empty">Tes vidéos ne se chargent pas pour l\'instant. Vérifie ta connexion.</div>'; },10000);
+  db.doc("reglages/branchement").onSnapshot(s=>{ branchement=s.exists?s.data():null; $("branchement").hidden=!!(branchement&&branchement.trigger_id); }, ()=>{});
+  db.collection("demandes").orderBy("creeLe","desc").limit(100).onSnapshot(snap=>{
+    clearTimeout(timer);
+    jobs=snap.docs.map(d=>({id:d.id, ...d.data()})); render();
+  }, err=>{ clearTimeout(timer); $("list").innerHTML='<div class="empty">Impossible de charger tes vidéos ('+(err&&err.code||"erreur")+').</div>'; });
+})();
+})();
+</script>
