@@ -238,6 +238,23 @@ class Fiche(unittest.TestCase):
             q.pop('son')
         self.assertTrue(any('tous' in t for t in niveaux(resoudre(f, prises={'video1.mp4': mots})[1], 'erreur')))
 
+    def test_mot_a_cheval_sur_une_coupe(self):
+        """Défaut du 13/11 (Reels des stands) : un mot à cheval sur une coupe s'affichait dans les deux plans (« mots en double »).
+        Il ne s'affiche plus que dans le plan qui en garde la plus grande part, le premier si les parts sont égales."""
+        def dits(plans, mots):
+            f = fiche_demo()
+            f['plans'] = [{'id': f'P{k + 1:02d}', 'source': 'sources/video1.mp4', 'de': de, 'duree': f'{d}s', 'son': True} for k, (de, d) in enumerate(plans)]
+            f['calques'] = [{'t': 'sous-titres', 'plan': 'tous', 'mots': 'auto'}]
+            calcul, rq = resoudre(f, prises={'video1.mp4': mots})
+            self.assertEqual(niveaux(rq, 'erreur'), [])
+            return [[m['m'] for g in c['groupes'] for ligne in g['lignes'] for m in ligne] for c in calcul['calques'] if c['t'] == 'sous-titres']
+        mots = [['un', 0.2, 0.4], ['deux', 0.5, 0.8], ['trois', 1.2, 1.7], ['quatre', 2.1, 2.5], ['cinq', 2.9, 3.4], ['six', 3.5, 3.9]]
+        # « trois » : 0,3 s dans P01, 0,1 s dans P02 ; « cinq » : 0,2 s dans P02, 0,3 s dans P03 (avant : chacun deux fois)
+        self.assertEqual(dits([(0.0, 1.5), (1.6, 1.5), (3.1, 1.2)], mots), [['un', 'deux', 'trois'], ['quatre'], ['cinq', 'six']])
+        mots[2] = ['trois', 1.3, 1.7]                                                                        # 0,2 s de chaque côté de la coupe
+        self.assertEqual(dits([(0.0, 1.5), (1.5, 1.5)], mots), [['un', 'deux', 'trois'], ['quatre', 'cinq']])     # parts égales : le 1er plan
+        self.assertEqual(dits([(0.0, 1.0), (0.0, 1.0)], mots), [['un', 'deux'], ['un', 'deux']])                 # passage répété exprès : gardé
+
     def test_stabilise(self):
         f = fiche_demo()
         f['plans'][1]['stabilise'] = 'beaucoup'
@@ -1008,6 +1025,43 @@ class ImagesCalques(unittest.TestCase):
         apres, = self._preparer([{**self._image('change'), 'l': 400}], public)
         self.assertNotEqual(apres['fichier'], avant['fichier'])
         self.assertEqual(self._couleur(public, apres['fichier']), (0, 200, 200))
+
+
+class PreparationReprise(unittest.TestCase):
+    """Défaut du 13/11 (Reels des stands) : public/images vidé après la planche, le rendu suivant échouait tant que la préparation
+    n'était pas forcée (elle était reprise du cache sans regarder si ses fichiers étaient encore là)."""
+    def test_fichiers_effaces_refaits(self):
+        import contextlib
+        import io
+        sys.path.insert(0, str(KIT))
+        import montage as M
+        from PIL import Image
+        projet = fabrique.fabriquer(Path(tempfile.mkdtemp(dir=TMP)) / 'reprise', avec_video=False)
+        Image.new('RGBA', (800, 400), (200, 30, 30, 255)).save(projet / 'sources' / 'produit.png')
+        Image.new('RGBA', (600, 600), (30, 30, 200, 255)).save(projet / 'sources' / 'logo.png')
+        fiche = {'nom': 'reprise', 'theme': 'neutre',
+                 'plans': [{'id': 'A', 'photo': 'sources/photo1.jpg', 'duree': '1s'}, {'id': 'C', 'photo': 'sources/photo2.jpg', 'duree': '1s'}],
+                 'calques': [{'t': 'image', 'fichier': 'sources/produit.png', 'plan': 'A', 'l': 300, 'y': 700},
+                             {'t': 'signature', 'nom': 'Démo', 'ligne': 'essai', 'plan': 'C', 'logo': 'sources/logo.png'}]}
+        (projet / 'montage.json').write_text(json.dumps(fiche, ensure_ascii=False), encoding='utf-8')
+
+        def preparer():
+            with contextlib.redirect_stdout(io.StringIO()) as s:
+                M.preparer(projet)
+            return s.getvalue()
+        preparer()
+        public = projet / '.travail' / 'public'
+        images = sorted(f.name for f in (public / 'images').iterdir())
+        self.assertEqual(len(images), 2)
+        for f in (public / 'images').iterdir():          # public/images vidé après la planche
+            f.unlink()
+        shutil.rmtree(public / 'plans' / 'C')            # et un plan effacé
+        dit = preparer()
+        self.assertIn('effacé', dit)
+        self.assertEqual(sorted(f.name for f in (public / 'images').iterdir()), images)
+        self.assertTrue((public / 'plans' / 'C' / 'meta.json').exists())
+        self.assertIn('1 extrait(s), 1 repris du cache', dit)                # seul ce qui manquait est refait
+        self.assertNotIn('Préparation faite', preparer())                    # tout est là : le cache est repris, rien n'est refait
 
 
 class Moteur(unittest.TestCase):

@@ -247,10 +247,13 @@ python3 montage/outils/charge.py -- python3 montage/montage.py final <projet> --
 - Sur le Mac, le montage le laisse utilisable : un seul à la fois, priorité basse, 4 cœurs, 3 Go laissés libres quand c'est possible.
 - Images des calques (logos, produits) : chacune a sa clé (source, taille, date, largeur affichée). Retirer ou déplacer un calque ne
   donne jamais l'image d'un autre ; une source changée ou affichée plus grand est refaite, nette ; celles qui ne servent plus sont effacées.
+- Préparation reprise du cache seulement si ses fichiers sont encore là : un dossier `public/images` vidé ou un plan effacé est refait
+  au rendu suivant (seul ce qui manque), sans forcer la préparation.
 - Polices fournies (licence libre), jamais de police de secours : s'il en manque une, le rendu s'arrête.
 - Droits du son : chaque rendu final écrit `sorties/<nom>-credits.txt` (musique, bruitages, voix). Le crédit d'une musique libre se recopie
   dans la légende ; une musique du commerce ne part jamais en ligne dans le fichier, le kit le rappelle et livre la version sans musique.
 - Lisible sur un téléphone : sous-titres de 84 px sur deux lignes, mot prononcé lisible sur sa pastille dans tous les thèmes, rien sous 34 px sans le dire.
+- Un mot à cheval sur une coupe ne s'affiche que dans un plan (celui qui en garde la plus grande part) : pas de mot en double.
 
 ## Les skills qui vont avec le kit
 
@@ -282,7 +285,7 @@ fois, voir le skill `montage-pro`) :
 ```bash
 python3 montage/exemples/demo/fabrique.py /tmp/demo     # projet de démonstration, sans aucun fichier de client
 python3 montage/montage.py tout /tmp/demo               # planche + vidéo finale contrôlée
-python3 montage/tests/test_kit.py                       # 69 tests automatiques, dont de vrais rendus (2 à 3 minutes)
+python3 montage/tests/test_kit.py                       # 71 tests automatiques, dont de vrais rendus (2 à 3 minutes)
 ```
 
 ## Licences

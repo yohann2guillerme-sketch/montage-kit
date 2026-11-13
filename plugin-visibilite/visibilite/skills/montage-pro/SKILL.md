@@ -133,7 +133,7 @@ du kit passent avant les leurs (son à -14 LUFS, zones d'Instagram) ; leurs pass
 ## Faire évoluer le moteur
 
 Le moteur est dans `montage/moteur/src/` (Remotion), la lecture de la fiche dans `montage/outils/fiche.py`. Toute évolution sert à toutes les
-vidéos suivantes : l'ajouter proprement, la documenter dans `montage/README.md`, puis lancer `python3 montage/tests/test_kit.py` (69 tests, dont
+vidéos suivantes : l'ajouter proprement, la documenter dans `montage/README.md`, puis lancer `python3 montage/tests/test_kit.py` (71 tests, dont
 un vrai rendu sur le projet de démonstration `montage/exemples/demo/fabrique.py`). Un effet ou une animation qui déplace l'image ou un
 texte se recopie aussi dans `montage/outils/tete.py` (garde-tête) : l'essai `test_meme_geometrie_que_le_moteur` le rappelle. Les skills officiels de Remotion s'installent à la demande
 avec `npx skills add remotion-dev/skills` (gratuit, guide : remotion.dev/docs/ai/skills) ; ils ne sont pas copiés ici car leur dépôt n'a pas de licence.

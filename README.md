@@ -10,4 +10,4 @@ d'Instagram, son à -14 LUFS).
 Installation : Python 3 avec Pillow, numpy, scipy, opencv, librosa, soundfile (rembg pour le détourage, faster-whisper pour les paroles),
 ffmpeg, Node 18 ou plus. Le moteur (Remotion) s'installe tout seul au premier rendu.
 
-Copie du logiciel tiré du dépôt de Yohann (version de main 4b2264b, 13/11/2026).
+Copie du logiciel tiré du dépôt de Yohann (version de main f36f4cf, 13/11/2026).

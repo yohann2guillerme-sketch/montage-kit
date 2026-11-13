@@ -91,6 +91,20 @@ def _empreinte_plans(calcul, projet):
     return h.hexdigest()
 
 
+def _public_manquant(calcul, ancien, travail):
+    """Fichiers rangés dans public/ par la dernière préparation et qui n'y sont plus (public/images vidé à la main, plan effacé…).
+    Avant, la préparation était reprise du cache sans regarder, et le rendu suivant échouait tant qu'on ne la forçait pas."""
+    tous = calcul['plans'] + [q['double'] for q in calcul['plans'] if q.get('double')]
+    attendus = [f'plans/{q["id"]}/meta.json' for q in tous]
+    attendus += [f'masques/{q["id"]}/cle.txt' for q in calcul['plans'] if q.get('_masque')]
+    attendus += ['images/' + (c['logo'] if c.get('t') == 'signature' else c['fichier']) for c in calcul['calques'] if c.get('_fichier')]
+    attendus += [f'polices/{p[1]}' for p in calcul['polices']]
+    attendus += ['fx/grain7.png'] if calcul['finition']['grain'] > 0 else []
+    attendus += [ancien['audio'], 'audio/sons-seuls.wav'] if ancien.get('audio') else []
+    public = Path(travail) / 'public'
+    return [a for a in dict.fromkeys(attendus) if not (public / a).exists()]
+
+
 def _montre_garde(g):
     if g['ok']:
         dire(f'Garde-tête : rien à corriger (têtes suivies dans {g["plans_avec_tete"]} plan(s) : aucune coupée par le cadre ni couverte, aucun texte sur un autre'
@@ -227,8 +241,11 @@ def preparer(projet):
     if cible.exists():
         ancien = json.loads(cible.read_text(encoding='utf-8'))
         if ancien.get('empreinte') == emp and 'garde_tete' in ancien:
-            _montre_garde(ancien['garde_tete'])
-            return ancien, travail
+            manque = _public_manquant(calcul, ancien, travail)
+            if not manque:
+                _montre_garde(ancien['garde_tete'])
+                return ancien, travail
+            dire(f'  {len(manque)} fichier(s) de la préparation effacé(s) depuis (dont {manque[0]}) : préparation refaite, seul ce qui manque est refait')
     t0 = time.time()
     from preparer import preparer as prep
     from mix import mixer, credits

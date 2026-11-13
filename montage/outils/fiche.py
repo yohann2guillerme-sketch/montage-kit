@@ -526,6 +526,17 @@ def resoudre(fiche, projet, tempo=None, sondes=None, paroles=None, prises=None):
             a_poser += [(i, {**c, 'plan': pid}) for pid in parlants]
         else:
             a_poser.append((i, c))
+
+    def mots_st(c, pl):
+        """Mots d'un calque de sous-titres : écrits dans la fiche, ou « auto » : les paroles du plan, sinon celles de toute la prise."""
+        mots = c.get('mots') or []
+        if mots == 'auto':
+            mots = (paroles or {}).get(pl['id']) or (prises or {}).get(Path(pl['_fichier']).name, [])
+        return mots
+    # plans à sous-titres et la liste de mots que chacun lit : un mot à cheval sur une coupe entre deux plans qui lisent la même liste
+    # ne s'affiche que dans un des deux (Reels des stands, 13/11 : « mots en double » à chaque coupe)
+    sous_titres = [(par_id[c['plan']], mots_st(c, par_id[c['plan']])) for _, c in a_poser
+                   if c.get('t') == 'sous-titres' and c.get('plan') in par_id and par_id[c['plan']]['vitesse'] == 1]
     for i, c in a_poser:
         nom = f'calque {i + 1} ({c.get("t")})'
         if c.get('t') not in TYPES_CALQUE:
@@ -634,15 +645,14 @@ def resoudre(fiche, projet, tempo=None, sondes=None, paroles=None, prises=None):
             spec = dict(theme[c.get('police') or 'texte']); familles.add(spec['famille'])
             ta = c.get('taille', round(TAILLE_SOUS_TITRES * ex))
             r['y'] = c.get('y', round(zones['bas_conseille'] - 2 * 1.18 * ta))       # deux lignes tiennent au-dessus de la légende d'Instagram
-            mots = c.get('mots') or []
             if not pl:
                 rq.erreur(f'{nom} : « plan » manque (les sous-titres suivent la parole d\'un plan)'); continue
-            if mots == 'auto':      # les paroles du plan, sinon celles de toute la prise (seuls les mots dits pendant le plan sont gardés plus bas)
-                mots = (paroles or {}).get(pl['id']) or (prises or {}).get(Path(pl['_fichier']).name, [])
+            mots = mots_st(c, pl)       # seuls les mots dits pendant le plan sont gardés plus bas
             if isinstance(pl['vitesse'], list) or pl['vitesse'] != 1:
                 rq.erreur(f'{nom} : le plan {pl["id"]} doit être à vitesse 1 pour des sous-titres'); continue
             conv = lambda s: pl['t0'] + (float(s) - pl['src']) * ips
-            lus = [dict(m=casse(str(m[0]), spec), de=conv(m[1]), a=conv(m[2])) for m in mots if conv(m[2]) > pl['t0'] and conv(m[1]) < pl['t1']]
+            voisins = [q for q, l_ in sous_titres if l_ is mots and q is not pl]      # plans qui lisent les mêmes paroles
+            lus = [dict(m=casse(str(m[0]), spec), de=conv(m[1]), a=conv(m[2])) for m in mots if mot_du_plan(m, pl, voisins, ips)]
             # en bas de l'image, les sous-titres restent à gauche des boutons d'Instagram
             larg = c.get('largeur') or (min(W - 2 * zones['marge'], 2 * (zones['droite'] - W / 2)) if r['y'] + ta * 2.4 > zones['droite_depuis'] else W - 2 * zones['marge'])
             long_ = max((largeur_texte(m['m'] + ' ', spec, ta) * 1.12 for m in lus), default=0)
@@ -788,6 +798,21 @@ def temps_sources(q, ips):
     for k in range(n):
         out.append(t); t += v(k) / ips
     return out
+
+
+def mot_du_plan(m, q, voisins, ips):
+    """Le mot m = [texte, début, fin] (temps de la source) s'affiche-t-il dans les sous-titres du plan q (vitesse 1) ? Oui s'il est dit
+    pendant le plan. Mais un mot à cheval sur une coupe, dont un des `voisins` (plans à sous-titres qui lisent les mêmes paroles) montre
+    aussi une part, ne s'affiche que dans le plan qui en garde la plus grande part (le premier des deux si elles sont égales)."""
+    fin = lambda p: p['src'] + (p['t1'] - p['t0']) / ips
+    de, a = float(m[1]), float(m[2])
+    if not (a > q['src'] and de < fin(q)):
+        return False                                     # pas dit pendant ce plan
+    if de >= q['src'] and a <= fin(q):
+        return True                                      # dit en entier dans ce plan
+    part = lambda p: min(a, fin(p)) - max(de, p['src'])
+    ici = part(q)
+    return not any(part(p) > 0 and (part(p) > ici + 1e-6 or (abs(part(p) - ici) <= 1e-6 and p['t0'] < q['t0'])) for p in voisins)
 
 
 def grouper_mots(mots, spec, taille, largeur, mots_max, ips):
