@@ -42,7 +42,7 @@ POLICES = {
 
 # ------------------------------------------------------------------ thèmes
 THEMES = {
-    # noir, blanc, gris : le style « télémétrie » du Reel HYROX v2 (validé le 09/11/2026)
+    # noir, blanc, gris : le style « télémétrie » (validé le 09/11/2026)
     'telemetrie': dict(encre='#0B0B0B', clair='#E6E6E6', fort='#FFFFFF', accent='#FFFFFF', gris='#8C8C8C',
                        titre=dict(famille='Barlow Condensed', poids=900, style='italic', casse='maj', espacement=-0.01),
                        texte=dict(famille='Barlow Condensed', poids=600, style='normal'),

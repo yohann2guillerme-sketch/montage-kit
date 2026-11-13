@@ -1,7 +1,7 @@
 # Kit de montage de Reels
 
 Le logiciel de montage du projet. On écrit une **fiche** (`montage.json`) qui décrit la vidéo en clair, et le kit sort une vidéo
-propre, aux normes, déjà contrôlée. Le moteur est celui du Reel HYROX v2 (validé le 09/11/2026), rendu commun à toutes les vidéos.
+propre, aux normes, déjà contrôlée. Le moteur est commun à toutes les vidéos (style « télémétrie » validé le 09/11/2026).
 
 Pourquoi : avant, chaque vidéo se réécrivait de zéro (long, cher, résultat variable). Maintenant le moteur, la finition et les
 contrôles sont faits une fois pour toutes.
@@ -53,8 +53,8 @@ Les durées s'écrivent : `24` (images), `"1.5s"` (secondes) ou `"4t"` (4 temps 
 | Clé | Rôle |
 |---|---|
 | `format` | `"9:16"` (Reel, story : le défaut), `"16:9"` (clip, YouTube : 1920 × 1080), `"4:5"`, `"1:1"`, ou `{"l": 1920, "h": 1080}`. Hors 9:16, les zones et les conseils propres aux Reels ne s'appliquent pas (il reste les marges). |
-| `theme` | `telemetrie` (noir, blanc, gris : style HYROX), `foulees` (rouge, blanc, anthracite), `cinema` (clip, bande-annonce : noir profond, blanc cassé, capitales espacées), `neutre`. Ou un objet `{"base": "foulees", "accent": "#..."}`. |
-| `etalonnage` | Réglage des couleurs des rushes : `naturel`, `sport` (celui de HYROX), `vif`, `doux`, `melancolie` (couleurs éteintes, ombres froides : clip). Possible aussi par plan. |
+| `theme` | `telemetrie` (noir, blanc, gris : style télémétrie), `foulees` (rouge, blanc, anthracite), `cinema` (clip, bande-annonce : noir profond, blanc cassé, capitales espacées), `neutre`. Ou un objet `{"base": "foulees", "accent": "#..."}`. |
+| `etalonnage` | Réglage des couleurs des rushes : `naturel`, `sport` (celui du style télémétrie), `vif`, `doux`, `melancolie` (couleurs éteintes, ombres froides : clip). Possible aussi par plan. |
 | `finition` | `grain` (0 à 0.15), `vignette` (0 à 0.5), `fondu_fin` (images de fondu au noir à la fin), `nettete` (`false` : aucune accentuation, l'image reste telle qu'elle a été filmée). |
 | `musique` | `fichier`, `debut` (s), `gain` (dB), `fondu` (images), et toujours `droits` : `"libre"` avec son `credit` (titre, auteur, site, licence), ou `"sous_droits"` (musique du commerce : seule la version sans musique va en ligne), ou `"artiste"` avec son `credit` (clip : la chanson de l'artiste pour qui on fait la vidéo, elle reste dans la version publiée, avec son accord). Le tempo est trouvé tout seul ; si le calage est annoncé « incertain », fixer `bpm` et `premier_temps`. |
 | `calage` | Clip en playback : `{"sources/prise.mov": 4.02}` = la vidéo commence à 4,02 s de la chanson. Les plans de cette vidéo n'ont pas de `de` : il se calcule pour que les lèvres tombent pile sur les paroles. `montage.py caler` donne les chiffres. |

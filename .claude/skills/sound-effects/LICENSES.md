@@ -1,5 +1,7 @@
 # Licences
 
+Dans ce dépôt, seuls les sons (`sfx/`, tous en CC0 1.0) sont gardés : le code et la documentation du skill d'origine n'y sont pas.
+
 ## Code and docs
 The scripts and SKILL.md are licensed under the repo's licence. The sound-pass approach is credited to Vox (@Voxyz_ai).
 

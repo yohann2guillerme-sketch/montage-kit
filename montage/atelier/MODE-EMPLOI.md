@@ -79,10 +79,13 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
 5. Monte avec le skill montage-pro : python3 montage/montage.py nouveau ~/montages/<id>, rushes, fiche montage.json d'après « duree »,
    « objectif », « contenu » et « autre », verifier jusqu'à zéro [erreur], planche, final. Livre seulement si la garde-tête dit
    « rien à corriger » et le contrôle « BON ». Une photo seule donne une vidéo courte animée, sauf si la demande parle d'une image.
-6. Si la vidéo finie dépasse 19 Mo, fais une copie pour l'atelier (ffmpeg, même taille d'image, -crf plus haut) qui passe sous 19 Mo.
-   Outil Artifact, action publish, url ATELIER, asset true, file_path = ce fichier. Note l'id renvoyé.
-7. ArtifactData update de demandes/<id> : statut « terminee », resultat {"asset_id": "<id>", "nom": "<nom>.mp4", "type": "video/mp4"},
+6. Renvoie la vidéo finie en pleine qualité, sans la réencoder : coupe-la en morceaux de 18 Mo
+   (split -b 18874368 -d -a 2 --additional-suffix=.mp4 <video> morceau-), puis, pour chaque morceau dans l'ordre :
+   outil Artifact, action publish, url ATELIER, asset true, file_path = ce morceau. Note les id renvoyés, dans l'ordre.
+7. ArtifactData update de demandes/<id> : statut « terminee »,
+   resultat {"morceaux": ["<id1>", "<id2>", ...], "nom": "<nom>.mp4", "type": "video/mp4", "octets": <taille>},
    message : une ou deux phrases simples (ce que tu as fait ; les coupes « à écouter au casque » s'il y en a).
+   La page recolle les morceaux quand on appuie sur « Voir la vidéo » ou « Récupérer la vidéo ».
 8. Problème que tu ne peux pas régler : statut « erreur » et message qui dit en mots simples quoi faire.
 Ne publie rien sur aucun réseau social. N'écris rien dans le dépôt. Ne pousse rien.
 ```

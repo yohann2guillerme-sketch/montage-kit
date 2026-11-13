@@ -18,7 +18,7 @@ import ressources as RES
 from hdr import VERS_SDR  # noqa: F401  (ancien nom ; la conversion des vidéos HDR se choisit dans hdr.py)
 ETALONNAGES = {
     'naturel': '',
-    # réglage du Reel HYROX v2 : contraste, peau un peu moins saturée, noirs légèrement relevés
+    # réglage du style télémétrie : contraste, peau un peu moins saturée, noirs légèrement relevés
     'sport': "eq=contrast=1.12:saturation=0.92:gamma=0.95,curves=master='0/0.015 0.2/0.14 0.5/0.49 0.8/0.84 1/0.985',colorbalance=rs=-0.03:bs=0.04:rh=0.03:gh=0.01:bh=-0.03",
     'vif': "eq=contrast=1.08:saturation=1.12,curves=master='0/0 0.25/0.22 0.5/0.5 0.75/0.79 1/1'",
     'doux': 'eq=contrast=0.97:saturation=0.95:gamma=1.03',

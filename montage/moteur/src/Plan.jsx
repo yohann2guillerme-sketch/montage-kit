@@ -1,5 +1,5 @@
 // Un plan : images du rush (ou photo), rampes de vitesse, zooms, transitions d'entrée et de sortie.
-// Repris du moteur du Reel HYROX v2 (validé « ultra propre »), rendu générique.
+// Moteur du style « télémétrie » (validé « ultra propre »), rendu générique.
 import React from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
 import {clamp, lerp, eOut, eIO, P, R, pad4, echantillons, tempsSource, plusProche} from './outils.js';

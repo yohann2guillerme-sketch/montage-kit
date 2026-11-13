@@ -330,6 +330,13 @@ Rédige une fiche de montage courte et concrète, en français. Réponds uniquem
 }
 
 /* ---------- liste ---------- */
+/* La vidéo finie revient en morceaux de 18 Mo (pleine qualité) : on les recolle ici. */
+const vues={};
+function resultatMorceaux(j){ const r=j.resultat; if(!r) return []; return r.morceaux&&r.morceaux.length ? r.morceaux : (r.asset_id?[r.asset_id]:[]); }
+async function assembler(j){
+  const parts=[]; for(const id of resultatMorceaux(j)){ const r=await fetch("/_blob/"+id); if(!r.ok) throw new Error("morceau manquant"); parts.push(await r.blob()); }
+  return new Blob(parts,{type:j.resultat.type||"video/mp4"});
+}
 function fmtDate(s){ try{ return new Date(s).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } }
 function bouton(txt, cls, fn){ const b=document.createElement("button"); b.type="button"; b.className=cls; b.textContent=txt; b.onclick=()=>fn(b); return b; }
 function render(){
@@ -355,14 +362,22 @@ function render(){
       card.append(a);
     }
 
-    if(j.resultat && j.resultat.asset_id && (j.statut==="terminee"||j.statut==="modification"||j.statut==="en_montage")){
-      const src="/_blob/"+j.resultat.asset_id;
-      let media;
-      if((j.resultat.type||"").startsWith("image/")){ media=document.createElement("img"); media.className="result"; media.alt="Résultat du montage"; }
-      else { media=document.createElement("video"); media.controls=true; media.playsInline=true; media.preload="metadata"; }
-      media.src=src; card.append(media);
+    const morceaux=resultatMorceaux(j);
+    if(morceaux.length && (j.statut==="terminee"||j.statut==="modification"||j.statut==="en_montage")){
+      const image=(j.resultat.type||"").startsWith("image/");
+      const montrer=src=>{ let media;
+        if(image){ media=document.createElement("img"); media.className="result"; media.alt="Résultat du montage"; }
+        else { media=document.createElement("video"); media.controls=true; media.playsInline=true; media.preload="metadata"; }
+        media.src=src; return media; };
+      if(morceaux.length===1) card.append(montrer("/_blob/"+morceaux[0]));
+      else if(vues[j.id]) card.append(montrer(vues[j.id]));
+      else { const zone=document.createElement("div"); zone.className="actions";
+        zone.append(bouton("Voir la vidéo","btn ghost", async b=>{ b.disabled=true; b.textContent="Chargement…";
+          try{ vues[j.id]=URL.createObjectURL(await assembler(j)); zone.replaceWith(montrer(vues[j.id])); }
+          catch(e){ b.disabled=false; b.textContent="Voir la vidéo (réessayer)"; } }));
+        card.append(zone); }
     }
-    if(j.statut==="terminee" && j.resultat && j.resultat.asset_id){
+    if(j.statut==="terminee" && morceaux.length){
       const a=document.createElement("div"); a.className="actions";
       const box=document.createElement("div"); box.className="step"; box.hidden=true;
       a.append(bouton("Récupérer la vidéo","btn", b=>recuperer(j,b)),
@@ -399,7 +414,7 @@ async function recuperer(j, btn){
   btn.disabled=true; const old=btn.textContent; btn.textContent="Téléchargement…";
   try{
     if(!downloads) throw new Error("indisponible");
-    const blob=await (await fetch("/_blob/"+j.resultat.asset_id)).blob();
+    const blob=await assembler(j);
     await downloads.save({filename:nom, data:blob});
     btn.textContent="Vidéo enregistrée";
   }catch(e){
