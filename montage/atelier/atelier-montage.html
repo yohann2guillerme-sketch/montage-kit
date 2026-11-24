@@ -103,7 +103,7 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:8px">
     <h1>Atelier montage</h1>
-    <p class="lead">Envoie tes photos ou vidéos, réponds à 3 questions, et ton Claude monte la vidéo pour toi. Tu la récupères ici quand elle est prête.</p>
+    <p class="lead">Envoie tes photos ou vidéos, choisis Story, Reel ou Post, réponds à 3 questions, et ton Claude monte la vidéo pour toi. Tu la récupères ici quand elle est prête.</p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Rubriques">
@@ -129,7 +129,17 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
     </div>
 
     <div class="step">
-      <div class="q"><b>1</b><span>Quelle durée ?</span></div>
+      <div class="q"><b>1</b><span>Quel type de montage ?</span></div>
+      <div class="chips" id="type" role="group" aria-label="Type de montage">
+        <button type="button" class="chip" data-v="Story">Story</button>
+        <button type="button" class="chip" data-v="Reel" aria-pressed="true">Reel</button>
+        <button type="button" class="chip" data-v="Post">Post</button>
+      </div>
+      <p class="hint" id="type-aide">Reel : vidéo verticale plein écran (9:16).</p>
+    </div>
+
+    <div class="step">
+      <div class="q"><b>2</b><span>Quelle durée ?</span></div>
       <div class="chips" id="duree" role="group" aria-label="Durée">
         <button type="button" class="chip" data-v="15 s">15 s</button>
         <button type="button" class="chip" data-v="30 s" aria-pressed="true">30 s</button>
@@ -139,7 +149,7 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
     </div>
 
     <div class="step">
-      <div class="q"><b>2</b><span>Quel objectif ?</span></div>
+      <div class="q"><b>3</b><span>Quel objectif ?</span></div>
       <div class="chips" id="objectif" role="group" aria-label="Objectif">
         <button type="button" class="chip" data-v="Faire venir des clients au magasin">Faire venir au magasin</button>
         <button type="button" class="chip" data-v="Montrer un produit">Montrer un produit</button>
@@ -150,7 +160,7 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
     </div>
 
     <div class="step">
-      <label class="q" for="contenu"><b>3</b><span>Que doit contenir la vidéo ?</span></label>
+      <label class="q" for="contenu"><b>4</b><span>Que doit contenir la vidéo ?</span></label>
       <textarea id="contenu" placeholder="Ex. : les nouvelles chaussettes en laine, un conseil pour bien les choisir, finir sur la devanture du magasin"></textarea>
     </div>
 
@@ -222,7 +232,13 @@ function chipGroup(id){
     if(id==="objectif") $("objectif-libre").value="";
   });
 }
-chipGroup("duree"); chipGroup("objectif");
+chipGroup("type"); chipGroup("duree"); chipGroup("objectif");
+const TYPES={
+  Story:{format:"9:16", aide:"Story : verticale plein écran (9:16), 15 s conseillées ; rien d'important tout en haut ni tout en bas."},
+  Reel:{format:"9:16", aide:"Reel : vidéo verticale plein écran (9:16)."},
+  Post:{format:"4:5", aide:"Post : pour le fil Instagram et Facebook (4:5, 1080 × 1350)."}
+};
+$("type").addEventListener("click",()=>{ const t=TYPES[val("type")]; if(t) $("type-aide").textContent=t.aide; });
 $("objectif-libre").addEventListener("input",()=>{ if($("objectif-libre").value) $("objectif").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false")); });
 const val = id => { const b=$(id).querySelector('[aria-pressed="true"]'); return b?b.dataset.v:""; };
 
@@ -338,7 +354,8 @@ $("form").addEventListener("submit", async e=>{
     }
     progress(.98,"Envoi de la demande…");
     const idChoisie=identiteChoisie();
-    const demande={ duree:val("duree"), objectif, contenu, autre:$("autre").value.trim(), identite: idChoisie };
+    const typeM=val("type")||"Reel";
+    const demande={ type:typeM, format:(TYPES[typeM]||TYPES.Reel).format, duree:val("duree"), objectif, contenu, autre:$("autre").value.trim(), identite: idChoisie };
     const ref=db.collection("demandes").doc();
     const maintenant=new Date().toISOString();
     await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
@@ -363,8 +380,9 @@ function resetForm(){
 /* Premier jet de fiche, rédigé par le Claude du compte ; la session de montage s'en sert comme point de départ. */
 async function ficheDeMontage(d, fichiers, images){
   if(!sample) return null;
-  const consigne = `Tu es monteur de Reels verticaux (9:16) pour un commerce local en France.
+  const consigne = `Tu es monteur vidéo pour les réseaux sociaux d'un commerce local en France.
 Demande du commerçant :
+- Type de montage : ${d.type} (format ${d.format}${d.type==="Story"?", garder le haut et le bas de l'image libres":""})
 - Durée voulue : ${d.duree}
 - Objectif : ${d.objectif}
 - Contenu attendu : ${d.contenu}
@@ -580,7 +598,7 @@ function render(){
     const card=document.createElement("article"); card.className="job";
     const top=document.createElement("div"); top.className="job-top";
     const info=document.createElement("div");
-    const h=document.createElement("h3"); h.textContent=(j.objectif||"Vidéo")+" · "+(j.duree||"");
+    const h=document.createElement("h3"); h.textContent=(j.type?j.type+" · ":"")+(j.objectif||"Vidéo")+" · "+(j.duree||"");
     const m=document.createElement("p"); m.className="meta"; m.textContent=`${(j.fichiers||[]).length} fichier(s) · envoyé ${fmtDate(j.creeLe)}`+(j.identite?` · identité ${j.identite.nom}`:"");
     info.append(h,m);
     const st=STATUTS[j.statut]||STATUTS.en_attente;
