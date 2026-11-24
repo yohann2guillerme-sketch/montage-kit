@@ -20,8 +20,11 @@ if ! command -v brew >/dev/null 2>&1; then
   fi
 fi
 
-echo "2/5 Python, ffmpeg et Node…"
-brew install python@3.12 ffmpeg node
+echo "2/5 Python, ffmpeg et Node (seulement ce qui manque ; rien de déjà installé n'est remplacé)…"
+export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_UPGRADE=1
+brew list python@3.12 >/dev/null 2>&1 || brew install python@3.12
+command -v ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+command -v node >/dev/null 2>&1 || brew install node
 
 echo "3/5 Bibliothèques Python du logiciel…"
 PY="$(brew --prefix python@3.12)/bin/python3.12"

@@ -15,8 +15,14 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 }
 
 Write-Host "1/4 Python, ffmpeg et Node..."
-foreach ($id in @("Python.Python.3.12", "Gyan.FFmpeg", "OpenJS.NodeJS.LTS")) {
-  winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements
+$besoins = @(@("py", "Python.Python.3.12"), @("ffmpeg", "Gyan.FFmpeg"), @("node", "OpenJS.NodeJS.LTS"))
+foreach ($b in $besoins) {
+  # seulement ce qui manque : rien de deja installe n'est remplace
+  $manque = -not (Get-Command $b[0] -ErrorAction SilentlyContinue)
+  if (-not $manque -and $b[0] -eq "py") { try { & py -3.12 --version *> $null; $manque = ($LASTEXITCODE -ne 0) } catch { $manque = $true } }
+  if ($manque) {
+    winget install --id $b[1] -e --silent --accept-package-agreements --accept-source-agreements
+  }
 }
 # relire le PATH apres les installations
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
