@@ -77,11 +77,12 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 .legende p{margin:0;white-space:pre-wrap;line-height:1.45}
 .ids{display:grid;grid-template-columns:1fr;gap:14px}
 .idc{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.apercu{aspect-ratio:16/10;max-width:100%;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-.apercu .t{font-size:1.9rem;line-height:1;overflow-wrap:anywhere}
-.apercu .s{font-size:1rem}
-.apercu .tag{align-self:flex-start;font-size:.72rem;padding:3px 8px;border-radius:4px;letter-spacing:.1em;text-transform:uppercase;font-family:"JetBrains Mono",monospace}
-.apercu .bande{height:6px;width:46%;border-radius:3px}
+.apercu{position:relative;aspect-ratio:4/5;overflow:hidden;container-type:inline-size;isolation:isolate}
+.apercu img{max-width:none}
+.fonds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.fonds div{position:relative;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:var(--card2)}
+.fonds img{width:100%;height:100%;object-fit:cover;display:block}
+.fonds button{position:absolute;top:4px;right:4px;border:0;border-radius:99px;width:26px;height:26px;background:rgba(0,0,0,.7);color:#fff;cursor:pointer}
 .idc .pied{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
 .idc .nom{font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .idc .nom small{color:var(--muted);font-weight:400}
@@ -209,6 +210,13 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
       <button type="button" class="btn ghost" id="nouvelle-id">Nouvelle identité</button>
     </div>
     <div id="id-msg" class="msg bad" hidden></div>
+    <details class="card" id="zone-fonds" style="gap:10px">
+      <summary style="font-weight:600;cursor:pointer">Photos du magasin pour les aperçus <span class="hint" id="nb-fonds"></span></summary>
+      <p class="hint">Les aperçus ci-dessous sont faits avec ces photos. Ajoute les tiennes (magasin, rayons, paires) : rien n'est publié.</p>
+      <div class="fonds" id="fonds"></div>
+      <label class="btn ghost" style="text-align:center">Ajouter des photos<input type="file" id="fonds-ajout" accept="image/*" multiple hidden></label>
+      <p class="hint" id="fonds-msg"></p>
+    </details>
     <div class="ids" id="ids"></div>
   </section>
 </div>
@@ -526,7 +534,7 @@ function dessinerIdentites(){
   const zone=$("ids"); zone.textContent="";
   for(const x of listeIdentites()){
     const c=document.createElement("article"); c.className="idc";
-    const ap=document.createElement("div"); ap.className="apercu"; remplirApercu(ap,x); c.append(ap);
+    const ap=document.createElement("div"); ap.className="apercu"; if(x.origine && DECORS[x.id]) ap.dataset.decor=x.id; remplirApercu(ap,x); c.append(ap);
     const pied=document.createElement("div"); pied.className="pied";
     const nom=document.createElement("div"); nom.className="nom";
     const n=document.createElement("span"); n.textContent=x.nom;
@@ -539,15 +547,204 @@ function dessinerIdentites(){
     c.append(pied); zone.append(c);
   }
 }
+/* ---------- aperçus des identités : vraies photos du magasin (reglages/fonds), un décor par identité ---------- */
+let fonds={photos:[], paires:[]};
+const ORDRE_PHOTO={foulees:0,telemetrie:3,cinema:1,neutre:8,chrono:0,carnet:4,sortie:5,studio:1,etiquette:7,magazine:2,vhs:3,cinetique:4,stopmotion:6,nuit:1,arcade:4,affiche:8};
+function photoPour(cle,i){ const p=fonds.photos||[]; if(!p.length) return null; const k=(ORDRE_PHOTO[cle] ?? (i||0))+(i>99?0:0); return "/_blob/"+p[k%p.length].id; }
+function pairePour(n){ const p=fonds.paires||[]; return p.length ? "/_blob/"+p[n%p.length] : null; }
+function el(tag, style, txt, cls){ const e=document.createElement(tag); if(style) Object.assign(e.style, style); if(txt!=null) e.textContent=txt; if(cls) e.className=cls; return e; }
+function txtStyle(p, extra){ const s={fontFamily:`"${p.famille}",system-ui,sans-serif`, fontWeight:String(p.poids), fontStyle:p.style||"normal"};
+  if(p.casse==="maj") s.textTransform="uppercase"; if(p.espacement) s.letterSpacing=p.espacement+"em"; return Object.assign(s, extra||{}); }
+function couche(ap, style){ const d=el("div", Object.assign({position:"absolute",inset:"0"}, style||{})); ap.append(d); return d; }
+function img(src, style){ const i=el("img", Object.assign({position:"absolute",display:"block"}, style||{})); i.alt=""; i.decoding="async"; i.loading="lazy"; if(src) i.src=src; return i; }
+function fondPhoto(ap, src, filtre){ if(!src) return; ap.append(img(src,{inset:"0",width:"100%",height:"100%",objectFit:"cover",filter:filtre||"none"})); }
+const MARQUE="FOULÉES · QUINCY";
+
+const DECORS={
+  /* couleur Foulées : photo plein cadre, dégradé, bande rouge */
+  foulees(ap,x){ fondPhoto(ap,photoPour("foulees"),"saturate(1.05) contrast(1.05)");
+    couche(ap,{background:`linear-gradient(180deg, transparent 35%, ${x.encre}EE 82%)`});
+    const h=couche(ap,{padding:"7cqw",display:"flex",flexDirection:"column",justifyContent:"space-between"});
+    h.append(el("span",{alignSelf:"flex-start",background:x.accent,color:"#fff",font:"700 3cqw Inter",letterSpacing:".14em",padding:"1.4cqw 2.4cqw"},"NOUVEAU EN RAYON"));
+    const b=el("div",{display:"flex",flexDirection:"column",gap:"2.4cqw"});
+    b.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"12.5cqw",lineHeight:".95"}),"La paire de la semaine"),
+      el("div",txtStyle(x.texte,{color:x.clair,fontSize:"4.2cqw"}),"À essayer au magasin, sur le tapis du Labo."),
+      el("div",{height:"1.6cqw",width:"34%",background:x.accent}));
+    h.append(b); },
+  /* télémétrie : HUD, chiffres, coins de visée */
+  telemetrie(ap,x){ fondPhoto(ap,photoPour("telemetrie"),"grayscale(1) contrast(1.15) brightness(.7)");
+    couche(ap,{background:`linear-gradient(180deg, ${x.encre}BB, ${x.encre}EE)`});
+    const coin=(pos)=>couche(ap,Object.assign({inset:"auto",width:"9cqw",height:"9cqw",borderColor:x.fort,borderStyle:"solid",borderWidth:"0"},pos));
+    coin({top:"5cqw",left:"5cqw",borderTopWidth:"2px",borderLeftWidth:"2px"}); coin({top:"5cqw",right:"5cqw",borderTopWidth:"2px",borderRightWidth:"2px"});
+    coin({bottom:"5cqw",left:"5cqw",borderBottomWidth:"2px",borderLeftWidth:"2px"}); coin({bottom:"5cqw",right:"5cqw",borderBottomWidth:"2px",borderRightWidth:"2px"});
+    const h=couche(ap,{padding:"10cqw 9cqw",display:"flex",flexDirection:"column",justifyContent:"space-between"});
+    h.append(el("div",{font:"600 3cqw 'JetBrains Mono'",color:x.gris,letterSpacing:".12em"},"ANALYSE DE FOULÉE · LIVE"));
+    const g=el("div",{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"3cqw"});
+    [["CADENCE","178"],["APPUI","MÉDIO"],["ALLURE","4'52"],["TEMPS AU SOL","231 ms"]].forEach(([k,v])=>{ const c=el("div",{borderLeft:`2px solid ${x.accent}`,paddingLeft:"2.4cqw"});
+      c.append(el("div",{font:"600 2.6cqw 'JetBrains Mono'",color:x.gris,letterSpacing:".1em"},k), el("div",txtStyle(x.titre,{color:x.fort,fontSize:"8cqw",lineHeight:"1"}),v)); g.append(c); });
+    h.append(g, el("div",txtStyle(x.texte,{color:x.clair,fontSize:"4cqw"}),"Ton analyse au Labo, en 15 minutes.")); },
+  /* cinéma : bandes noires, titre espacé */
+  cinema(ap,x){ fondPhoto(ap,photoPour("cinema"),"contrast(1.1) saturate(.8) sepia(.15)");
+    couche(ap,{background:"radial-gradient(ellipse at center, rgba(0,0,0,.45) 30%, rgba(0,0,0,.8))"});
+    couche(ap,{inset:"0 0 auto 0",height:"16%",background:x.encre}); couche(ap,{inset:"auto 0 0 0",height:"16%",background:x.encre});
+    const h=couche(ap,{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"3cqw",textAlign:"center",padding:"0 8cqw"});
+    h.append(el("div",txtStyle(x.texte,{color:x.clair,fontSize:"2.8cqw"}),"Foulées présente"),
+      el("div",txtStyle(x.titre,{color:x.fort,fontSize:"11cqw",lineHeight:"1"}),"Le mur des records"),
+      el("div",{width:"14cqw",height:"1px",background:x.fort}),
+      el("div",txtStyle(x.texte,{color:x.clair,fontSize:"3cqw"}),"En magasin dès samedi")); },
+  /* neutre : sobre, cadre blanc */
+  neutre(ap,x){ ap.style.background=x.encre; const f=couche(ap,{inset:"6cqw 6cqw 30cqw 6cqw",overflow:"hidden",borderRadius:"2cqw"}); fondPhoto(f,photoPour("neutre"));
+    const h=couche(ap,{inset:"auto 6cqw 6cqw 6cqw",display:"flex",flexDirection:"column",gap:"1.6cqw"});
+    h.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"9cqw",lineHeight:"1"}),"Textile hiver"), el("div",txtStyle(x.texte,{color:x.clair,fontSize:"3.8cqw"}),"Couches chaudes, respirantes, réfléchissantes.")); },
+  /* Chrono : diagonale rouge / noire, VS, chrono */
+  chrono(ap,x){ ap.style.background=x.encre; const ph=couche(ap,{clipPath:"polygon(0 58%,100% 40%,100% 100%,0 100%)"}); fondPhoto(ph,photoPour("chrono"),"grayscale(.4) brightness(.55) contrast(1.1)");
+    couche(ap,{background:x.accent,clipPath:"polygon(0 0,100% 0,100% 40%,0 58%)"});
+    const p1=pairePour(0), p2=pairePour(1);
+    if(p1) ap.append(img(p1,{width:"62%",left:"4%",top:"15%",transform:"rotate(-8deg)",filter:"drop-shadow(0 3cqw 3cqw rgba(0,0,0,.45))"}));
+    if(p2) ap.append(img(p2,{width:"62%",right:"2%",top:"54%",transform:"scaleX(-1) rotate(-6deg)",filter:"drop-shadow(0 3cqw 3cqw rgba(0,0,0,.55))"}));
+    const vs=couche(ap,{inset:"auto",left:"41%",top:"41%",width:"18cqw",height:"18cqw",borderRadius:"50%",background:"#fff",display:"grid",placeItems:"center"}); vs.append(el("span",txtStyle(x.titre,{color:x.accent,fontSize:"8cqw"}),"VS"));
+    const h=couche(ap,{padding:"5cqw 6cqw",display:"flex",flexDirection:"column",justifyContent:"space-between",pointerEvents:"none"});
+    const top=el("div",{display:"flex",justifyContent:"space-between",alignItems:"center"}); top.append(el("span",{font:"800 2.8cqw Inter",color:"#fff",letterSpacing:".12em"},"LE DUEL · N°01"), el("span",{font:"700 3.4cqw 'JetBrains Mono'",color:"#fff",background:"rgba(0,0,0,.25)",padding:".6cqw 1.6cqw",borderRadius:"1cqw"},"00:42.18"));
+    h.append(top, el("div",txtStyle(x.titre,{color:x.fort,fontSize:"10.5cqw",lineHeight:".92",maxWidth:"70%"}),"Laquelle tu prends ?")); },
+  /* Carnet : papier quadrillé, polaroïd scotché, mot manuscrit */
+  carnet(ap,x){ ap.style.background=x.encre; couche(ap,{backgroundImage:`linear-gradient(${x.gris}22 1px, transparent 1px), linear-gradient(90deg, ${x.gris}22 1px, transparent 1px)`,backgroundSize:"5cqw 5cqw"});
+    const h=couche(ap,{padding:"7cqw"}); h.append(el("div",txtStyle({famille:"Inter",poids:900},{color:x.clair,fontSize:"7cqw",lineHeight:"1"}),"Plutôt"), el("div",txtStyle(x.titre,{color:x.fort,fontSize:"10cqw",lineHeight:"1"}),"laquelle ?"));
+    const pol=couche(ap,{inset:"auto",left:"9%",top:"25%",width:"52%",aspectRatio:"4/5",background:"#fff",padding:"2.6cqw 2.6cqw 9cqw",boxShadow:"0 2cqw 5cqw rgba(0,0,0,.25)",transform:"rotate(-4deg)"});
+    const inner=el("div",{position:"relative",width:"100%",height:"100%",overflow:"hidden"}); pol.append(inner); fondPhoto(inner,photoPour("carnet"));
+    pol.append(el("div",{position:"absolute",left:"30%",top:"-2.4cqw",width:"40%",height:"5cqw",background:"rgba(255,235,170,.75)",transform:"rotate(3deg)"}));
+    pol.append(el("div",{position:"absolute",left:"0",right:"0",bottom:"2cqw",textAlign:"center",font:"700 5cqw Caveat",color:x.clair},"le Labo, samedi"));
+    const note=couche(ap,{inset:"auto",right:"6%",top:"44%",transform:"rotate(-8deg)",font:"700 6.4cqw Caveat",color:x.fort,textAlign:"center",lineHeight:"1"}); note.textContent="viens\ntester ↙"; note.style.whiteSpace="pre";
+    const btn=couche(ap,{inset:"auto",left:"7cqw",bottom:"7cqw",background:x.accent,color:"#fff",font:"800 3.2cqw Inter",padding:"1.8cqw 3cqw"}); btn.textContent="Réponds en commentaire ↓"; },
+  /* Sortie : photo floutée, tracé, données de course */
+  sortie(ap,x){ fondPhoto(ap,photoPour("sortie"),"blur(.6cqw) brightness(.45) saturate(.7)"); ap.style.background=x.encre;
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("viewBox","0 0 100 125"); Object.assign(svg.style,{position:"absolute",inset:"0",width:"100%",height:"100%"});
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path"); p.setAttribute("d","M14 96 C 22 70, 40 84, 46 62 S 70 40, 62 30 S 80 18, 88 26"); p.setAttribute("fill","none"); p.setAttribute("stroke",x.accent); p.setAttribute("stroke-width","1.6"); p.setAttribute("stroke-linecap","round");
+    const d=document.createElementNS("http://www.w3.org/2000/svg","circle"); d.setAttribute("cx","88"); d.setAttribute("cy","26"); d.setAttribute("r","2.2"); d.setAttribute("fill","#fff"); svg.append(p,d); ap.append(svg);
+    const h=couche(ap,{padding:"7cqw",display:"flex",flexDirection:"column",justifyContent:"space-between"});
+    h.append(el("div",{font:"700 3cqw Inter",color:x.gris,letterSpacing:".14em"},"SAMEDI 9:00 · DÉPART DU MAGASIN"));
+    const b=el("div",{display:"flex",flexDirection:"column",gap:"3cqw"}); b.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"12cqw",lineHeight:".9"}),"Sortie du samedi"));
+    const g=el("div",{display:"grid",gridTemplateColumns:"repeat(3,1fr)",borderTop:`1px solid ${x.gris}66`,paddingTop:"3cqw"});
+    [["DISTANCE","8,5 km"],["ALLURE","libre"],["NIVEAU","tous"]].forEach(([k,v])=>{ const c=el("div"); c.append(el("div",{font:"700 2.4cqw Inter",color:x.gris,letterSpacing:".12em"},k), el("div",txtStyle(x.titre,{color:x.clair,fontSize:"6.4cqw"}),v)); g.append(c); });
+    b.append(g); h.append(b); },
+  /* Studio épuré : fond clair, paire en grand, ombre douce */
+  studio(ap,x){ ap.style.background=`radial-gradient(ellipse at 50% 45%, #FFFFFF, ${x.encre})`;
+    const f=couche(ap,{opacity:".16"}); fondPhoto(f,photoPour("studio"),"grayscale(1) blur(.3cqw)");
+    const h=couche(ap,{padding:"6cqw",display:"flex",flexDirection:"column",alignItems:"center",textAlign:"center"});
+    h.append(el("div",{font:"600 2.6cqw Inter",color:x.gris,letterSpacing:".4em"},MARQUE));
+    const t=el("div",txtStyle(x.titre,{color:x.fort,fontSize:"13cqw",lineHeight:"1",marginTop:"2cqw"})); t.append(document.createTextNode("A "), el("span",{color:x.accent},"ou"), document.createTextNode(" B")); h.append(t);
+    const p1=pairePour(2), p2=pairePour(3);
+    if(p1) ap.append(img(p1,{width:"70%",left:"15%",top:"30%",transform:"rotate(-6deg)",filter:"drop-shadow(0 4cqw 3cqw rgba(0,0,0,.22))"}));
+    if(p2) ap.append(img(p2,{width:"70%",left:"15%",top:"62%",transform:"rotate(4deg)",filter:"drop-shadow(0 4cqw 3cqw rgba(0,0,0,.22))"}));
+    const lettre=(l,top)=>{ const s=couche(ap,{inset:"auto",left:"7cqw",top,font:"900 6cqw Inter",color:x.accent}); s.textContent=l; }; lettre("A","34%"); lettre("B","64%");
+    const pied=couche(ap,{inset:"auto 0 4cqw 0",textAlign:"center",font:"700 3cqw Inter",color:x.clair}); pied.textContent="Ton choix en commentaire"; },
+  /* Étiquette boîte kraft : carton, étiquettes, code-barres, tampon */
+  etiquette(ap,x){ ap.style.background=x.encre; couche(ap,{backgroundImage:"repeating-linear-gradient(90deg, rgba(0,0,0,.04) 0 2px, transparent 2px 7px)",mixBlendMode:"multiply"});
+    const bandeau=couche(ap,{inset:"5cqw 5cqw auto 5cqw",background:"#fff",padding:"2.2cqw 3cqw",display:"flex",justifyContent:"space-between",font:"700 2.6cqw 'JetBrains Mono'",color:x.clair}); bandeau.append(el("span",null,"FOULÉES / QUINCY-SOUS-SÉNART"),el("span",null,"RÉF. 024"));
+    const carte=(gauche,lettre,k)=>{ const c=couche(ap,{inset:"auto",left:gauche,top:"18%",width:"43%",height:"54%",background:"#fff",padding:"2.6cqw",display:"flex",flexDirection:"column",gap:"1.6cqw",boxShadow:"0 1cqw 2cqw rgba(0,0,0,.18)"});
+      c.append(el("div",{font:"700 2.2cqw 'JetBrains Mono'",color:x.gris},"MODÈLE"), el("div",txtStyle(x.titre,{color:x.clair,fontSize:"11cqw",lineHeight:".9"}),lettre));
+      const ph=el("div",{position:"relative",flex:"1",overflow:"hidden",background:"#eee"}); const pa=pairePour(k); if(pa) ph.append(img(pa,{width:"110%",left:"-5%",top:"22%"})); c.append(ph);
+      c.append(el("div",{height:"7cqw",backgroundImage:`repeating-linear-gradient(90deg, ${x.clair} 0 1px, transparent 1px 2.5px, ${x.clair} 2.5px 4px, transparent 4px 5px)`})); };
+    carte("5%","A",1); carte("52%","B",0);
+    const tampon=couche(ap,{inset:"auto",left:"14%",top:"72%",border:`0.9cqw solid ${x.accent}`,color:x.accent,padding:"1cqw 3cqw",transform:"rotate(-7deg)"}); tampon.append(el("span",txtStyle(x.titre,{fontSize:"9cqw"}),"Ton choix ?"));
+    const pied=couche(ap,{inset:"auto 0 4cqw 0",textAlign:"center",font:"700 2.6cqw 'JetBrains Mono'",color:x.clair,letterSpacing:".1em"}); pied.textContent="RÉPONDS A OU B EN COMMENTAIRE"; },
+  /* Magazine : couverture, titre de une, filet, accroches */
+  magazine(ap,x){ fondPhoto(ap,photoPour("magazine"),"saturate(1.05)"); couche(ap,{background:`linear-gradient(180deg, ${x.encre} 0%, ${x.encre}CC 22%, transparent 45%, transparent 70%, rgba(0,0,0,.55))`});
+    const h=couche(ap,{padding:"5cqw 6cqw",display:"flex",flexDirection:"column"});
+    h.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"20cqw",lineHeight:".85",textAlign:"center"}),"le Labo"));
+    const filet=el("div",{display:"flex",justifyContent:"space-between",borderTop:`2px solid ${x.clair}`,borderBottom:`1px solid ${x.clair}`,padding:"1cqw 0",marginTop:"1.6cqw",font:"800 2.4cqw Inter",color:x.clair,letterSpacing:".08em"});
+    filet.append(el("span",null,"N°01"),el("span",null,MARQUE),el("span",null,"NOV. 2026")); h.append(filet);
+    const acc=couche(ap,{inset:"auto 6cqw 6cqw 6cqw",display:"flex",flexDirection:"column",gap:"1.2cqw"});
+    acc.append(el("div",{font:"italic 400 6.4cqw 'Instrument Serif'",color:"#fff"},"Ta foulée, en 15 minutes"), el("div",{font:"800 3cqw Inter",color:"#fff"},"Analyse vidéo · tapis · conseils")); },
+  /* VHS : lignes de balayage, décalage RVB, REC, timecode */
+  vhs(ap,x){ fondPhoto(ap,photoPour("vhs"),"saturate(1.4) contrast(1.15) hue-rotate(-8deg)");
+    couche(ap,{backgroundImage:"repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px)"});
+    couche(ap,{background:"radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.6))"});
+    const h=couche(ap,{padding:"6cqw",display:"flex",flexDirection:"column",justifyContent:"space-between",font:"700 4cqw 'JetBrains Mono'",color:"#fff",textShadow:`0.5cqw 0 ${x.accent}, -0.5cqw 0 ${x.gris}`});
+    const top=el("div",{display:"flex",justifyContent:"space-between"}); top.append(el("span",null,"▶ PLAY"), el("span",{color:x.accent},"● REC")); h.append(top);
+    h.append(el("div",txtStyle(x.titre,{fontSize:"9.5cqw",lineHeight:"1.05",color:x.fort}),"Essai sur tapis_"));
+    const bas=el("div",{display:"flex",justifyContent:"space-between"}); bas.append(el("span",null,"SP 00:12:44"), el("span",null,"NOV 24 2026")); h.append(bas); },
+  /* Typo cinétique : mots géants, un mot rempli de la photo */
+  cinetique(ap,x){ ap.style.background=x.encre; const h=couche(ap,{padding:"5cqw 5cqw",display:"flex",flexDirection:"column",justifyContent:"center",lineHeight:".82"});
+    const mot=(t,st)=>el("div",txtStyle(x.titre,Object.assign({fontSize:"27cqw",color:x.clair,whiteSpace:"nowrap"},st||{})),t);
+    const src=photoPour("cinetique");
+    const plein=mot("plus",{backgroundImage:src?`url(${src})`:"none",backgroundSize:"cover",backgroundPosition:"center",WebkitBackgroundClip:"text",backgroundClip:"text",color:src?"transparent":x.clair});
+    h.append(mot("cours"), plein, mot("loin.",{color:x.accent}));
+    const pied=couche(ap,{inset:"auto 5cqw 4cqw 5cqw",display:"flex",justifyContent:"space-between",font:"700 2.6cqw Inter",color:x.gris,letterSpacing:".12em"}); pied.append(el("span",null,MARQUE), el("span",null,"01 / 03")); },
+  /* Stop-motion papier : kraft, découpes déchirées, paire en sticker */
+  stopmotion(ap,x){ ap.style.background=x.encre; couche(ap,{backgroundImage:"radial-gradient(rgba(0,0,0,.08) 1px, transparent 1px)",backgroundSize:"2cqw 2cqw"});
+    const dech="polygon(2% 4%,12% 0,25% 3%,38% 0,52% 4%,66% 1%,80% 4%,94% 0,100% 6%,98% 22%,100% 40%,97% 58%,100% 76%,98% 94%,86% 100%,70% 97%,55% 100%,40% 96%,25% 100%,10% 97%,0 100%,3% 80%,0 62%,2% 44%,0 26%)";
+    const papier=couche(ap,{inset:"auto",left:"8%",top:"20%",width:"70%",height:"48%",background:x.gris,clipPath:dech,transform:"rotate(3deg)"});
+    const ph=couche(ap,{inset:"auto",left:"11%",top:"22.5%",width:"64%",height:"43%",clipPath:dech,transform:"rotate(3deg)",overflow:"hidden"}); fondPhoto(ph,photoPour("stopmotion"));
+    const pa=pairePour(4); if(pa) ap.append(img(pa,{width:"62%",right:"3%",top:"58%",transform:"rotate(-10deg)",filter:"drop-shadow(0 0 0 #fff) drop-shadow(1cqw 0 0 #fff) drop-shadow(-1cqw 0 0 #fff) drop-shadow(0 1cqw 0 #fff) drop-shadow(0 -1cqw 0 #fff) drop-shadow(0 2cqw 2cqw rgba(0,0,0,.3))"}));
+    couche(ap,{inset:"auto",left:"30%",top:"17.5%",width:"26%",height:"5cqw",background:"rgba(255,255,255,.55)",transform:"rotate(-4deg)"});
+    const t=couche(ap,{inset:"6cqw 7cqw auto 7cqw"}); t.append(el("div",txtStyle(x.titre,{color:x.clair,fontSize:"12cqw",lineHeight:".9"}),"fait main,"), el("div",txtStyle(x.titre,{color:x.accent,fontSize:"12cqw",lineHeight:".9"}),"testé ici"));
+    const pied=couche(ap,{inset:"auto 7cqw 5cqw 7cqw",font:"800 3cqw Inter",color:x.clair}); pied.textContent="Viens l'essayer ↓"; },
+  /* Nuit : néons, photo assombrie, halos */
+  nuit(ap,x){ fondPhoto(ap,photoPour("nuit"),"brightness(.32) contrast(1.2) saturate(1.2)"); ap.style.background=x.encre;
+    couche(ap,{background:`radial-gradient(ellipse at 30% 75%, ${x.accent}44, transparent 55%), radial-gradient(ellipse at 80% 30%, ${x.gris}33, transparent 50%)`});
+    couche(ap,{inset:"auto -10% 22% -10%",height:"1.2cqw",background:x.accent,boxShadow:`0 0 4cqw ${x.accent}`,transform:"rotate(-8deg)",opacity:".8"});
+    const pa=pairePour(1); if(pa) ap.append(img(pa,{width:"66%",left:"17%",top:"42%",transform:"rotate(-6deg)",filter:`drop-shadow(0 0 2.4cqw ${x.gris}) brightness(1.05)`}));
+    const h=couche(ap,{padding:"8cqw 6cqw",display:"flex",flexDirection:"column",alignItems:"center",textAlign:"center",gap:"2cqw"});
+    h.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"12cqw",lineHeight:"1",textShadow:`0 0 1cqw ${x.accent}, 0 0 3cqw ${x.accent}, 0 0 6cqw ${x.accent}`}),"Sortie de nuit"),
+      el("div",{font:"800 2.8cqw Inter",color:x.clair,letterSpacing:".3em"},"POUR TA SORTIE DE CE SOIR"));
+    const pied=couche(ap,{inset:"auto 6cqw 6cqw auto",font:"800 3cqw Inter",color:"#fff"}); pied.textContent="Réponds en commentaire"; },
+  /* Arcade : grille, photo pixelisée, cadres J1/J2, police pixel (sans accents) */
+  arcade(ap,x){ ap.style.background=x.encre; couche(ap,{backgroundImage:`linear-gradient(${x.gris}22 1px, transparent 1px), linear-gradient(90deg, ${x.gris}22 1px, transparent 1px)`,backgroundSize:"4cqw 4cqw"});
+    const h=couche(ap,{padding:"7cqw 5cqw",display:"flex",flexDirection:"column",alignItems:"center",gap:"5cqw",textAlign:"center"});
+    h.append(el("div",{font:"400 6cqw 'Press Start 2P'",color:x.fort,lineHeight:"1.3",textShadow:`0.6cqw 0.6cqw 0 ${x.accent}`},"CHOISIS TA PAIRE"));
+    const g=el("div",{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"3cqw",width:"100%"});
+    [[x.accent,"J1",2],[x.gris,"J2",1]].forEach(([c,j,k])=>{ const b=el("div",{position:"relative",aspectRatio:"3/4",border:`0.8cqw solid ${c}`,background:"#0b0930",overflow:"hidden"});
+      const cv=document.createElement("canvas"); cv.width=36; cv.height=48; Object.assign(cv.style,{position:"absolute",inset:"0",width:"100%",height:"100%",imageRendering:"pixelated",opacity:".55"}); b.append(cv);
+      const src=photoPour("arcade",k); if(src){ const im=new Image(); im.onload=()=>{ const ctx=cv.getContext("2d"); const r=Math.max(36/im.width,48/im.height); ctx.drawImage(im,(36-im.width*r)/2,(48-im.height*r)/2,im.width*r,im.height*r); }; im.src=src; }
+      const pa=pairePour(k); if(pa) b.append(img(pa,{width:"100%",left:"0",top:"34%"}));
+      b.append(el("div",{position:"absolute",left:"2cqw",top:"2cqw",font:"400 3cqw 'Press Start 2P'",color:c},j)); g.append(b); });
+    h.append(g, el("div",{font:"400 3cqw 'Press Start 2P'",color:x.clair,lineHeight:"1.6"},"▶ APPUIE SUR A OU B")); },
+  /* Affiche riso : deux encres, trame, décalage de calage */
+  affiche(ap,x){ ap.style.background=x.encre;
+    const ph=couche(ap,{inset:"24% 10% 26% 10%",overflow:"hidden",background:x.clair}); fondPhoto(ph,photoPour("affiche"),"grayscale(1) contrast(1.3) brightness(1.1)"); ph.lastChild && (ph.lastChild.style.mixBlendMode="screen");
+    couche(ph,{background:x.fort,mixBlendMode:"multiply",opacity:".35",transform:"translate(1.2cqw,-0.8cqw)"});
+    couche(ap,{backgroundImage:`radial-gradient(${x.clair}33 0.35cqw, transparent 0.4cqw)`,backgroundSize:"1.6cqw 1.6cqw",mixBlendMode:"multiply"});
+    const t=couche(ap,{inset:"6cqw 7cqw auto 7cqw"}); t.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"13cqw",lineHeight:".9",textShadow:`0.8cqw 0.6cqw 0 ${x.clair}`}),"Plutôt"));
+    const b=couche(ap,{inset:"auto 7cqw 9cqw 7cqw"}); b.append(el("div",txtStyle(x.titre,{color:x.fort,fontSize:"13cqw",lineHeight:".9",textShadow:`0.8cqw 0.6cqw 0 ${x.clair}`}),"ou ça ?"));
+    const pied=couche(ap,{inset:"auto 7cqw 4cqw 7cqw",display:"flex",justifyContent:"space-between",font:"800 2.4cqw Inter",color:x.clair,letterSpacing:".1em"}); pied.append(el("span",null,MARQUE), el("span",null,"A OU B ↓")); },
+};
+/* identité créée par la personne : décor simple aux couleurs choisies, sur une photo du magasin */
+function decorLibre(ap,x){ fondPhoto(ap,photoPour("perso",x.nom ? x.nom.length : 0),"brightness(.85)");
+  couche(ap,{background:`linear-gradient(180deg, ${x.encre}33, ${x.encre}F0 78%)`});
+  const h=couche(ap,{padding:"7cqw",display:"flex",flexDirection:"column",justifyContent:"flex-end",gap:"2.4cqw"});
+  h.append(el("span",{alignSelf:"flex-start",background:x.accent,color:clair(x.accent)?x.encre:"#fff",font:"800 2.8cqw Inter",letterSpacing:".12em",padding:"1.2cqw 2.2cqw"},"NOUVEAU"),
+    el("div",txtStyle(x.titre,{color:x.fort,fontSize:"11cqw",lineHeight:".95"}),"Le titre de ta vidéo"),
+    el("div",txtStyle(x.texte,{color:x.clair,fontSize:"4cqw"}),"Un texte plus petit, comme un sous-titre."),
+    el("div",{height:"1.4cqw",width:"30%",background:x.accent})); }
+/* photos de fond : la personne peut en ajouter ou en retirer */
+function dessinerFonds(){
+  const z=$("fonds"); z.textContent=""; $("nb-fonds").textContent=`(${(fonds.photos||[]).length})`;
+  (fonds.photos||[]).forEach((p,i)=>{ const d=document.createElement("div"); d.append(img("/_blob/"+p.id,{position:"static"}));
+    const b=document.createElement("button"); b.type="button"; b.textContent="×"; b.setAttribute("aria-label","Retirer cette photo");
+    b.onclick=async()=>{ b.disabled=true; const photos=fonds.photos.filter((_,k)=>k!==i);
+      try{ await db.doc("reglages/fonds").set({photos, paires:fonds.paires||[]}); if(assets) assets.delete(p.id).catch(()=>{}); }catch(e){ b.disabled=false; } };
+    d.append(b); z.append(d); });
+}
+async function reduirePhoto(f){
+  const url=URL.createObjectURL(f); try{
+    const im=await new Promise((ok,ko)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=ko; i.src=url; });
+    const W=1080,H=1350, c=document.createElement("canvas"); c.width=W; c.height=H; const r=Math.max(W/im.width,H/im.height);
+    c.getContext("2d").drawImage(im,(W-im.width*r)/2,(H-im.height*r)/2,im.width*r,im.height*r);
+    return await new Promise(ok=>c.toBlob(ok,"image/jpeg",.85));
+  } finally{ URL.revokeObjectURL(url); }
+}
+$("fonds-ajout").addEventListener("change", async e=>{
+  const fs=[...e.target.files]; e.target.value=""; if(!fs.length) return;
+  if(!db||!assets){ $("fonds-msg").textContent="Seul le compte qui a publié l'atelier peut ajouter des photos."; return; }
+  const ajout=[]; for(let i=0;i<fs.length;i++){ $("fonds-msg").textContent=`Envoi ${i+1} sur ${fs.length}…`;
+    try{ const b=await reduirePhoto(fs[i]); const up=await assets.upload(b,{type:"image/jpeg"}); ajout.push({id:up.id, nom:fs[i].name}); }catch(err){} }
+  try{ await db.doc("reglages/fonds").set({photos:(fonds.photos||[]).concat(ajout), paires:fonds.paires||[]}); $("fonds-msg").textContent=ajout.length?"Photos ajoutées.":"Ça n'a pas marché, réessaie."; }
+  catch(err){ $("fonds-msg").textContent="Ça n'a pas marché, réessaie."; }
+});
 function remplirApercu(ap,x){
   ap.textContent=""; ap.style.background=x.encre;
-  const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Nouveau"; tag.style.background=x.accent; tag.style.color=clair(x.accent)?x.encre:"#FFFFFF";
-  const t=document.createElement("div"); t.className="t"; t.textContent="Le titre de ta vidéo"; t.setAttribute("style", css(x.titre)+`color:${x.fort}`);
-  const s=document.createElement("div"); s.className="s"; s.textContent="Un texte plus petit, comme un sous-titre."; s.setAttribute("style", css(x.texte)+`color:${x.clair}`);
-  const bande=document.createElement("div"); bande.className="bande"; bande.style.background=x.accent;
-  const haut=document.createElement("div"); haut.style.cssText="display:flex;flex-direction:column;gap:12px"; haut.append(tag,t);
-  const bas=document.createElement("div"); bas.style.cssText="display:flex;flex-direction:column;gap:10px"; bas.append(s,bande);
-  ap.append(haut,bas);
+  const cle=ap.dataset.decor||"";
+  (DECORS[cle]||decorLibre)(ap,x);
 }
 function clair(hex){ const h=(hex||"#000").replace("#",""); const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16); return (0.299*r+0.587*g+0.114*b)>150; }
 function editeur(x, rafraichir){
@@ -835,6 +1032,7 @@ async function recuperer(j, btn){
   if(!db){ $("list").innerHTML='<div class="empty">Connecte-toi pour voir tes vidéos.</div>'; return; }
   const timer=setTimeout(()=>{ if(!jobs.length) $("list").innerHTML='<div class="empty">Tes vidéos ne se chargent pas pour l\'instant. Vérifie ta connexion.</div>'; },10000);
   db.collection("identites").onSnapshot(snap=>{ modifiees=Object.fromEntries(snap.docs.map(d=>[d.id, d.data()])); dessinerChoix(); dessinerIdentites(); }, ()=>{});
+  db.doc("reglages/fonds").onSnapshot(s=>{ const d=s.exists?s.data():{}; fonds={photos:d.photos||[], paires:d.paires||[]}; dessinerFonds(); dessinerIdentites(); }, ()=>{});
   db.doc("reglages/branchement").onSnapshot(s=>{ branchement=s.exists?s.data():null; $("branchement").hidden=!!(branchement&&branchement.trigger_id); }, ()=>{});
   db.collection("demandes").orderBy("creeLe","desc").limit(100).onSnapshot(snap=>{
     clearTimeout(timer);

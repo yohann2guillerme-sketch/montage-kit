@@ -112,6 +112,10 @@ Stop-motion papier, Nuit, Arcade, Affiche), traduites en couleurs et polices du 
 changements sont gardés dans la base de la page (collection « identites ») ; « Revenir à l'origine » efface une modification. Dans le
 formulaire, on choisit l'identité d'une vidéo ; la demande en emporte une copie (« identite »), que la session met dans la fiche.
 
+Chaque identité a un vrai aperçu (affiche, duel, carnet, VHS, néons…) fait avec les photos du magasin rangées dans la base
+de la page (document « reglages/fonds » : photos et paires détourées, en assets de la page). On les ajoute ou les retire dans
+l'onglet Identités, « Photos du magasin ». Aucune photo n'est dans le dépôt.
+
 ## Mes vidéos : Reels, Stories, Posts
 
 La liste des vidéos est rangée en trois onglets selon le type choisi (une ancienne demande sans type va dans Reels). Sous chaque
