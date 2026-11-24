@@ -680,7 +680,8 @@ function render(){
     if(j.statut==="terminee" && morceaux.length){
       const a=document.createElement("div"); a.className="actions";
       const box=document.createElement("div"); box.className="step"; box.hidden=true;
-      a.append(bouton("Récupérer la vidéo","btn", b=>recuperer(j,b)),
+      a.append(bouton("Publier","btn", b=>publier(j,b)),
+               bouton("Récupérer la vidéo","btn ghost", b=>recuperer(j,b)),
                bouton("Ajouter une modification","btn ghost", ()=>{ box.hidden=!box.hidden; if(!box.hidden) ta.focus(); }),
                bouton("Pointer sur la vidéo","btn ghost", ()=>{ const w=card.querySelector(".pointage"); if(!w){ note.textContent="Appuie d'abord sur « Voir la vidéo »."; box.hidden=false; return; }
                  w.classList.toggle("actif"); const v=w.querySelector("video"); if(v) v.pause(); }));
@@ -714,6 +715,37 @@ function render(){
     }
     L.append(card);
   }
+}
+/* Publier : la page ne publie rien elle-même. Elle ouvre le partage du téléphone (Instagram, Facebook…) avec la vidéo,
+   légende copiée ; c'est la personne qui valide la publication dans l'appli. */
+const prets={};
+async function publier(j, btn){
+  const nom=(j.resultat.nom||"video-montee.mp4");
+  const old="Publier";
+  try{
+    if(!prets[j.id]){
+      btn.disabled=true; btn.textContent="Préparation…";
+      const blob=await assembler(j);
+      prets[j.id]=new File([blob], nom, {type:blob.type||"video/mp4"});
+      btn.disabled=false;
+      btn.textContent="Ouvrir Instagram ou Facebook"; // 2e appui : le partage doit partir d'un geste
+      return;
+    }
+    const f=prets[j.id];
+    if(j.legende){ try{ await navigator.clipboard.writeText(j.legende); }catch(e){} }
+    if(navigator.canShare && navigator.canShare({files:[f]})){
+      await navigator.share({files:[f], title:nom});
+      btn.textContent = j.legende ? "Légende copiée : colle-la dans l'appli" : "Envoyé à l'appli";
+    } else {
+      if(downloads) await downloads.save({filename:nom, data:f});
+      btn.textContent="Vidéo enregistrée : ouvre Instagram et choisis-la";
+    }
+  }catch(e){
+    btn.disabled=false;
+    btn.textContent = (e&&(e.name==="AbortError"||e.code==="declined")) ? "Ouvrir Instagram ou Facebook" : "Échec : utilise « Récupérer la vidéo »";
+    return;
+  }
+  setTimeout(()=>{ btn.textContent= prets[j.id] ? "Ouvrir Instagram ou Facebook" : old; },6000);
 }
 async function recuperer(j, btn){
   const nom=(j.resultat.nom||"video-montee.mp4");
