@@ -16,3 +16,4 @@ Règles :
 - Atelier montage (page claude.ai) : `montage/atelier/MODE-EMPLOI.md`.
 - Dans le skill, les passages sur le Cockpit, le service réseaux (`reseaux.py`), le Mac de Yohann et les autres fils ne s'appliquent pas ici : on les ignore.
 - Moteur Remotion : gratuit pour une personne ou une entreprise de 3 personnes au plus ; au-delà, licence à prendre (remotion.dev/license).
+- Sur l'ordinateur d'une personne (dossier `AtelierMontage` installé par `installeur/`) : utiliser le Python de `.venv` (`.venv/bin/python`, Windows `.venv\Scripts\python.exe`) à la place de `python3`.

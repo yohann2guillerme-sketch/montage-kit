@@ -109,6 +109,8 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 .navbas button[aria-selected="true"]{color:var(--fg)}
 .navbas button[aria-selected="true"] svg{color:var(--vif)}
 .navbas .nb{font-size:.68rem;background:var(--vif);color:var(--vif-fg);border-radius:99px;padding:0 6px;margin-left:2px}
+.installe{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.installe ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 .marque{display:flex;align-items:center;gap:10px}
 .marque i{width:10px;height:10px;border-radius:50%;background:var(--vif);box-shadow:0 0 12px var(--vif)}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
@@ -117,6 +119,15 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:6px">
     <div class="marque"><i></i><h1>Atelier montage</h1></div>
+    <div class="installe">
+      <button type="button" class="btn vif" id="tout-installer">Tout installer sur mon ordinateur</button>
+      <p class="hint" id="installe-msg">Une fois : le logiciel de montage, ses skills et le mode d'emploi, pour monter sur ton ordinateur avec ton Claude.</p>
+      <ol class="hint" id="installe-etapes" hidden>
+        <li>Décompresse <b>AtelierMontage.zip</b> dans « Documents ».</li>
+        <li>Double-clique <b>installeur/installer-mac.command</b> (Mac) ou <b>installeur/installer-windows.bat</b> (Windows), 10 à 20 min.</li>
+        <li>Ouvre l'appli Claude, onglet Claude Code, dossier <b>AtelierMontage</b>, et écris : « Suis montage/atelier/MODE-EMPLOI.md, partie Brancher l'atelier sur l'ordinateur ».</li>
+      </ol>
+    </div>
     <p class="lead" id="sous-titre">Envoie tes photos ou vidéos, choisis Story, Reel ou Post, réponds à 3 questions : ton Claude monte la vidéo.</p>
   </header>
 
@@ -1129,6 +1140,20 @@ async function recuperer(j, btn){
     btn.textContent = (e&&e.code==="declined") ? old : "Échec : touche la vidéo puis ⋯ › Télécharger";
   }finally{ btn.disabled=false; setTimeout(()=>{btn.textContent=old;},5000); }
 }
+
+/* ---------- Tout installer : le paquet (zip en base64) est publié à côté de la page ---------- */
+$("tout-installer").addEventListener("click", async ()=>{
+  const b=$("tout-installer"), m=$("installe-msg"); b.disabled=true; const old=b.textContent; b.textContent="Préparation du paquet…";
+  try{
+    const r=await fetch("installeur-atelier.txt"); if(!r.ok) throw new Error("paquet introuvable");
+    const txt=(await r.text()).trim(); const bin=atob(txt); const octets=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) octets[i]=bin.charCodeAt(i);
+    const zip=new Blob([octets],{type:"application/zip"});
+    if(downloads) await downloads.save({filename:"AtelierMontage.zip", data:zip});
+    else { const a=document.createElement("a"); a.href=URL.createObjectURL(zip); a.download="AtelierMontage.zip"; document.body.append(a); a.click(); a.remove(); }
+    m.textContent="Téléchargé ("+Math.round(zip.size/1048576)+" Mo). Ensuite :"; $("installe-etapes").hidden=false; b.textContent="Retélécharger";
+  }catch(e){ b.textContent=old; m.textContent=(e&&e.code==="declined")?"Téléchargement annulé.":"Le téléchargement n'a pas marché. Réessaie dans un moment."; }
+  finally{ b.disabled=false; }
+});
 
 /* ---------- démarrage ---------- */
 (async()=>{

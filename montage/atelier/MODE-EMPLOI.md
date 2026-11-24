@@ -59,6 +59,27 @@ Dans une session Claude Code ouverte sur ce dépôt, écrire : « Suis montage/a
 
 5. **Vérifier** : ouvrir la page. Le bandeau « pas encore branché » a disparu. Lancer un premier essai avec une photo.
 
+## Brancher l'atelier sur l'ordinateur (sans GitHub)
+
+Pour une personne qui a reçu le dossier `AtelierMontage` par le bouton « Tout installer » et lancé l'installateur
+(`installeur/LISEZ-MOI.md`). Le montage tourne sur SON ordinateur, avec SON abonnement Claude. Session Claude Code ouverte dans le
+dossier `AtelierMontage`, sur l'ordinateur de la personne :
+
+1. **Vérifier l'installation** : `.venv/bin/python installeur/verifier_installation.py` (Windows : `.venv\Scripts\python.exe`).
+   S'il manque quelque chose, l'installer (README.md, Installation) puis relancer la vérification.
+2. **Publier la page** comme à l'étape 1 de « Brancher l'atelier » (mêmes capacités). Noter l'adresse : `ATELIER`.
+3. **Remote Control** : demander à la personne d'ouvrir l'appli Claude, Réglages, Claude Code, Remote Control, de mettre
+   l'interrupteur et d'ajouter le dossier `AtelierMontage` (« Add folder »). Puis `list_environments` : prendre l'environnement
+   de type `bridge` dont le nom finit par `AtelierMontage`. Noter son `environment_id`.
+4. **Tâche du montage** : `create_trigger` comme à l'étape 3 de « Brancher l'atelier », avec cet `environment_id` (la tâche ouvre une
+   session sur l'ordinateur, dans ce dossier). Dans la consigne, remplacer « Installe les outils » par « Les outils sont installés :
+   utilise .venv/bin/python (Windows : .venv\Scripts\python.exe) à la place de python3 ».
+5. **Donner la tâche à la page** (étape 4) et **vérifier** (étape 5) avec une photo. Si la tâche ne part pas sur l'ordinateur
+   (environnement introuvable ou montage jamais commencé), le dire à la personne en mots simples : la page reste utilisable avec
+   « Si le bouton ne marche pas » ci-dessous, dans l'appli Claude ouverte sur `AtelierMontage`.
+
+L'ordinateur doit rester allumé, avec l'appli Claude ouverte, pendant un montage.
+
 ## Consigne de chaque montage
 
 À mettre tel quel dans le `prompt` de la tâche (avec `ATELIER` remplacé) :
