@@ -38,6 +38,12 @@ POLICES = {
     'DM Serif Display': [('DMSerifDisplay-Regular.ttf', '400', 'normal'), ('DMSerifDisplay-Italic.ttf', '400', 'italic')],
     'Montserrat': [('Montserrat-ExtraBold.ttf', '800', 'normal'), ('Montserrat-Black.ttf', '900', 'normal')],
     'Poppins': [('Poppins-Bold.ttf', '700', 'normal'), ('Poppins-ExtraBold.ttf', '800', 'normal')],
+    # polices des identités Foulées du 09/11/2026 (atelier, onglet « Identités visuelles »)
+    'Instrument Serif': [('InstrumentSerif-Regular.ttf', '400', 'normal'), ('InstrumentSerif-Italic.ttf', '400', 'italic')],
+    'Bricolage Grotesque': [('BricolageGrotesque-Bold.ttf', '700', 'normal')],
+    'Bowlby One SC': [('BowlbyOneSC.ttf', '400', 'normal')],
+    'Press Start 2P': [('PressStart2P-Regular.ttf', '400', 'normal')],      # aucune majuscule accentuée : écrire sans accents
+    'Monoton': [('Monoton-Regular.ttf', '400', 'normal')],
 }
 
 # ------------------------------------------------------------------ thèmes

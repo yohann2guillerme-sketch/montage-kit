@@ -76,11 +76,15 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
 4. Si « modifications » n'est pas vide, c'est une reprise : refais la vidéo d'après la demande et applique TOUTES les modifications de
    la liste, la dernière en priorité. Sinon c'est une première demande.
    « fiche » (s'il existe) est un premier jet écrit dans la page : un point de départ, pas un ordre.
+   Une modification peut porter un « point » {t, x, y} : l'endroit que la personne a touché sur la vidéo finie (t en secondes,
+   x et y de 0 à 1 sur l'image : en 1080x1920, x*1080 et y*1920 px) et « image », l'id d'une image de cet instant avec un cercle
+   rouge (outil Artifact, action read, path = cet id). La modification s'applique à cet endroit-là.
 5. Monte avec le skill montage-pro : python3 montage/montage.py nouveau ~/montages/<id>, rushes, fiche montage.json d'après « duree »,
    « objectif », « contenu » et « autre », verifier jusqu'à zéro [erreur], planche, final. Livre seulement si la garde-tête dit
    « rien à corriger » et le contrôle « BON ». Une photo seule donne une vidéo courte animée, sauf si la demande parle d'une image.
    Si « identite » est rempli, mets « identite.theme » tel quel dans la clé "theme" de la fiche (identité choisie dans l'onglet
    « Identités visuelles » de la page) ; sinon choisis un thème du kit.
+   Si « identite.note » est rempli, respecte-la (exemple : Arcade, police sans majuscules accentuées : textes sans accents).
 6. Renvoie la vidéo finie en pleine qualité, sans la réencoder : coupe-la en morceaux de 18 Mo
    (split -b 18874368 -d -a 2 --additional-suffix=.mp4 <video> morceau-), puis, pour chaque morceau dans l'ordre :
    outil Artifact, action publish, url ATELIER, asset true, file_path = ce morceau. Note les id renvoyés, dans l'ordre.
@@ -94,10 +98,17 @@ Ne publie rien sur aucun réseau social. N'écris rien dans le dépôt. Ne pouss
 
 ## Onglet « Identités visuelles »
 
-La page montre les identités visuelles du logiciel (Foulées, Télémétrie, Cinéma, Neutre), avec un aperçu. On y change les couleurs
+La page montre les identités visuelles avec un aperçu : celles du logiciel (Foulées, Télémétrie, Cinéma, Neutre) et les 12 faites
+pour Foulées le 9 novembre 2026 (Chrono, Carnet du coureur, Sortie, Studio épuré, Étiquette boîte kraft, Magazine, VHS, Typo cinétique,
+Stop-motion papier, Nuit, Arcade, Affiche), traduites en couleurs et polices du logiciel. On y change les couleurs
 (fond, titres, textes, couleur forte, gris), la police des titres et des textes, les majuscules, et on peut en créer de nouvelles. Les
 changements sont gardés dans la base de la page (collection « identites ») ; « Revenir à l'origine » efface une modification. Dans le
 formulaire, on choisit l'identité d'une vidéo ; la demande en emporte une copie (« identite »), que la session met dans la fiche.
+
+## Pointer sur la vidéo finie
+
+Sous une vidéo prête, « Pointer sur la vidéo » met la vidéo en pause et attend qu'on touche l'endroit à changer. Un cercle s'y pose, puis
+on écrit à Claude ce qu'il faut ajouter ou modifier là. La modification part avec l'instant, l'endroit et une image de contrôle.
 
 ## Si le bouton ne marche pas
 

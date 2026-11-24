@@ -1,6 +1,6 @@
 <title>Atelier montage</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,900;1,800;1,900&family=Bebas+Neue&family=Archivo+Black&family=Caveat:wght@700&family=DM+Serif+Display:ital@0;1&family=Montserrat:wght@800;900&family=Poppins:wght@700;800&family=JetBrains+Mono:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,900;1,800;1,900&family=Bebas+Neue&family=Archivo+Black&family=Caveat:wght@700&family=DM+Serif+Display:ital@0;1&family=Montserrat:wght@800;900&family=Poppins:wght@700;800&family=JetBrains+Mono:wght@600;700&family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Bowlby+One+SC&family=Press+Start+2P&family=Monoton&display=swap">
 <style>
 /* Layout : une seule colonne étroite, façon appli de téléphone ; le formulaire en haut, les vidéos dessous. */
 :root{
@@ -91,6 +91,12 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 .edit input[type=color]{width:46px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:2px}
 .edit select{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px;font:inherit;max-width:60%}
 .idc .actions .btn{flex:1 1 110px;padding:10px 12px;font-size:.92rem}
+.pointage{position:relative;line-height:0}
+.pointage .voile-pt{position:absolute;inset:0;cursor:crosshair;display:none;border-radius:12px;box-shadow:inset 0 0 0 3px var(--accent)}
+.pointage.actif .voile-pt{display:block}
+.pointage .repere{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:4px solid #FF2D55;box-shadow:0 0 0 3px rgba(255,255,255,.9);pointer-events:none}
+.pointage .consigne-pt{position:absolute;left:10px;right:10px;top:10px;line-height:1.3;background:rgba(0,0,0,.72);color:#fff;font-size:.9rem;padding:8px 12px;border-radius:10px;display:none;pointer-events:none}
+.pointage.actif .consigne-pt{display:block}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 
@@ -388,13 +394,41 @@ const ORIGINES = {
   cinema:{nom:"Cinéma", base:"cinema", encre:"#050506", clair:"#E9E6E1", fort:"#F2EFEA", accent:"#F2EFEA", gris:"#8E8B87",
     titre:{famille:"Bebas Neue", poids:400, style:"normal", casse:"maj", espacement:0.18}, texte:{famille:"Inter", poids:600, style:"normal", casse:"maj", espacement:0.32}},
   neutre:{nom:"Neutre", base:"neutre", encre:"#101012", clair:"#F2F2F2", fort:"#FFFFFF", accent:"#FFFFFF", gris:"#9A9AA0",
-    titre:{famille:"Inter", poids:900, style:"normal", casse:"maj", espacement:-0.02}, texte:{famille:"Inter", poids:700, style:"normal"}}
+    titre:{famille:"Inter", poids:900, style:"normal", casse:"maj", espacement:-0.02}, texte:{famille:"Inter", poids:700, style:"normal"}},
+  /* identités faites pour Foulées le 09/11/2026 (Club local retirée par Yohann), traduites en couleurs et polices du logiciel */
+  chrono:{nom:"Chrono", base:"foulees", encre:"#1F1D1E", clair:"#FFFFFF", fort:"#FFFFFF", accent:"#FF121A", gris:"#A59FA0",
+    titre:{famille:"Anton", poids:400, style:"normal", casse:"maj", espacement:0.01}, texte:{famille:"Inter", poids:800, style:"normal"}},
+  carnet:{nom:"Carnet du coureur", base:"foulees", encre:"#F4EFE6", clair:"#1F1D1E", fort:"#FF121A", accent:"#FF121A", gris:"#8A8486",
+    titre:{famille:"Instrument Serif", poids:400, style:"italic", casse:"normal", espacement:0}, texte:{famille:"Inter", poids:900, style:"normal"}},
+  sortie:{nom:"Sortie", base:"foulees", encre:"#151515", clair:"#B8B8B8", fort:"#FFFFFF", accent:"#FF121A", gris:"#8C8C8C",
+    titre:{famille:"Barlow Condensed", poids:900, style:"italic", casse:"maj", espacement:-0.02}, texte:{famille:"Inter", poids:700, style:"normal"}},
+  studio:{nom:"Studio épuré", base:"foulees", encre:"#ECEAE8", clair:"#1F1D1E", fort:"#1F1D1E", accent:"#FF121A", gris:"#8A8486",
+    titre:{famille:"Inter", poids:900, style:"normal", casse:"normal", espacement:-0.04}, texte:{famille:"Inter", poids:700, style:"normal"}},
+  etiquette:{nom:"Étiquette boîte kraft", base:"foulees", encre:"#C9A57A", clair:"#1F1D1E", fort:"#1F1D1E", accent:"#FF121A", gris:"#777777",
+    titre:{famille:"Anton", poids:400, style:"normal", casse:"maj", espacement:0.01}, texte:{famille:"JetBrains Mono", poids:700, style:"normal"}},
+  magazine:{nom:"Magazine", base:"foulees", encre:"#F6F3F0", clair:"#1F1D1E", fort:"#FF121A", accent:"#FF121A", gris:"#8A8486",
+    titre:{famille:"Instrument Serif", poids:400, style:"italic", casse:"normal", espacement:-0.01}, texte:{famille:"Inter", poids:800, style:"normal"}},
+  vhs:{nom:"VHS", base:"foulees", encre:"#000000", clair:"#FFFFFF", fort:"#FFFFFF", accent:"#FF121A", gris:"#3CC8FF",
+    titre:{famille:"JetBrains Mono", poids:700, style:"normal", casse:"maj", espacement:0.02}, texte:{famille:"JetBrains Mono", poids:700, style:"normal"}},
+  cinetique:{nom:"Typo cinétique", base:"foulees", encre:"#F7F6F4", clair:"#1F1D1E", fort:"#1F1D1E", accent:"#FF121A", gris:"#8A8486",
+    titre:{famille:"Bricolage Grotesque", poids:700, style:"normal", casse:"normal", espacement:-0.04}, texte:{famille:"Inter", poids:700, style:"normal"}},
+  stopmotion:{nom:"Stop-motion papier", base:"foulees", encre:"#CDB08A", clair:"#1F1D1E", fort:"#1F1D1E", accent:"#FF121A", gris:"#F4EFE6",
+    titre:{famille:"Caveat", poids:700, style:"normal", casse:"normal", espacement:0}, texte:{famille:"Inter", poids:800, style:"normal"}},
+  nuit:{nom:"Nuit (néons)", base:"foulees", encre:"#0B0708", clair:"#D9D9D9", fort:"#FFFFFF", accent:"#FF121A", gris:"#4CC9FF",
+    titre:{famille:"Monoton", poids:400, style:"normal", casse:"maj", espacement:0}, texte:{famille:"Inter", poids:800, style:"normal"}},
+  arcade:{nom:"Arcade", base:"foulees", encre:"#14113A", clair:"#FFFFFF", fort:"#FFE14D", accent:"#FF121A", gris:"#3DA9FF",
+    titre:{famille:"Press Start 2P", poids:400, style:"normal", casse:"maj", espacement:0}, texte:{famille:"Press Start 2P", poids:400, style:"normal"},
+    note:"Police sans majuscules accentuées : écrire les textes sans accents."},
+  affiche:{nom:"Affiche (riso)", base:"foulees", encre:"#F1E8D6", clair:"#2846AA", fort:"#FF121A", accent:"#2846AA", gris:"#8A8486",
+    titre:{famille:"Bowlby One SC", poids:400, style:"normal", casse:"maj", espacement:0}, texte:{famille:"Inter", poids:800, style:"normal"}}
 };
 /* polices du logiciel : poids et style pris pour un titre, puis pour un texte */
 const POLICES = {
   "Anton":[[400,"normal"],[400,"normal"]], "Barlow Condensed":[[900,"italic"],[600,"normal"]], "Inter":[[900,"normal"],[700,"normal"]],
   "Bebas Neue":[[400,"normal"],[400,"normal"]], "Archivo Black":[[400,"normal"],[400,"normal"]], "Montserrat":[[900,"normal"],[800,"normal"]],
-  "Poppins":[[800,"normal"],[700,"normal"]], "DM Serif Display":[[400,"normal"],[400,"normal"]], "Caveat":[[700,"normal"],[700,"normal"]]
+  "Poppins":[[800,"normal"],[700,"normal"]], "DM Serif Display":[[400,"normal"],[400,"normal"]], "Caveat":[[700,"normal"],[700,"normal"]],
+  "Instrument Serif":[[400,"italic"],[400,"normal"]], "Bricolage Grotesque":[[700,"normal"],[700,"normal"]], "Bowlby One SC":[[400,"normal"],[400,"normal"]],
+  "Press Start 2P":[[400,"normal"],[400,"normal"]], "Monoton":[[400,"normal"],[400,"normal"]], "JetBrains Mono":[[700,"normal"],[700,"normal"]]
 };
 const COULEURS = [["encre","Fond"],["fort","Titres"],["clair","Textes"],["accent","Couleur forte"],["gris","Gris"]];
 let identites = {};       // id -> identité affichée (origine, ou version modifiée de la base)
@@ -402,7 +436,8 @@ let modifiees = {};       // id -> document de la base
 let edition = null;       // id de la carte ouverte
 const copie = o => JSON.parse(JSON.stringify(o));
 function listeIdentites(){
-  const l = Object.keys(ORIGINES).map(id => ({id, ...(modifiees[id] ? modifiees[id] : ORIGINES[id]), origine:true}));
+  const ORDRE = ["foulees","chrono","carnet","sortie","studio","etiquette","magazine","vhs","cinetique","stopmotion","nuit","arcade","affiche","telemetrie","cinema","neutre"];
+  const l = ORDRE.filter(id => ORIGINES[id]).map(id => ({id, ...(modifiees[id] ? modifiees[id] : ORIGINES[id]), origine:true}));
   Object.keys(modifiees).filter(id => !ORIGINES[id]).sort().forEach(id => l.push({id, ...modifiees[id], origine:false}));
   identites = Object.fromEntries(l.map(x => [x.id, x]));
   return l;
@@ -416,7 +451,7 @@ function themePourFiche(x){
 function identiteChoisie(){
   const b=$("identite").querySelector('[aria-pressed="true"]'); const id=b&&b.dataset.v;
   if(!id || !identites[id]) return null;
-  return {id, nom: identites[id].nom, theme: themePourFiche(identites[id])};
+  return {id, nom: identites[id].nom, note: identites[id].note||"", theme: themePourFiche(identites[id])};
 }
 function css(p){ return `font-family:"${p.famille}",system-ui,sans-serif;font-weight:${p.poids};font-style:${p.style||"normal"};`+
   (p.casse==="maj"?"text-transform:uppercase;":"")+(p.espacement?`letter-spacing:${p.espacement}em;`:""); }
@@ -441,6 +476,7 @@ function dessinerIdentites(){
     const etat=document.createElement("small"); etat.textContent = !x.origine ? "créée par toi" : (modifiees[x.id] ? "modifiée" : "d'origine");
     nom.append(n,etat); pied.append(nom);
     const pa=document.createElement("div"); pa.className="pastilles"; COULEURS.forEach(([k,lib])=>{ const i=document.createElement("i"); i.style.background=x[k]; i.title=lib; pa.append(i); }); pied.append(pa);
+    if(x.note){ const nn=document.createElement("p"); nn.className="hint"; nn.textContent=x.note; pied.append(nn); }
     if(edition===x.id) pied.append(editeur(x, b=>remplirApercu(ap,b)));
     else { const a=document.createElement("div"); a.className="actions"; a.append(bouton("Modifier","btn ghost", ()=>{ edition=x.id; dessinerIdentites(); })); pied.append(a); }
     c.append(pied); zone.append(c);
@@ -471,7 +507,7 @@ function editeur(x, rafraichir){
   const a=document.createElement("div"); a.className="actions";
   a.append(bouton("Enregistrer","btn", async b=>{ b.disabled=true; idMsg("");
     try{ const doc={nom: inom.value.trim()||x.nom, base:x.base, encre:brouillon.encre, clair:brouillon.clair, fort:brouillon.fort, accent:brouillon.accent, gris:brouillon.gris,
-        titre:brouillon.titre, texte:brouillon.texte, majLe:new Date().toISOString()};
+        titre:brouillon.titre, texte:brouillon.texte, note:x.note||"", majLe:new Date().toISOString()};
       await db.collection("identites").doc(x.id).set(doc); edition=null; }
     catch(err){ b.disabled=false; idMsg("L'enregistrement a échoué. Réessaie."); } }));
   a.append(bouton("Annuler","btn ghost", ()=>{ edition=null; dessinerIdentites(); }));
@@ -495,6 +531,38 @@ function onglet(nom){
 $("tab-montages").onclick=()=>onglet("montages"); $("tab-identites").onclick=()=>onglet("identites");
 try{ if(localStorage.getItem("atelier-onglet")==="identites") onglet("identites"); }catch(e){}
 dessinerChoix(); dessinerIdentites();
+
+/* ---------- pointer un endroit de la vidéo ou de la photo ---------- */
+const points={};   // id de la demande -> {t, x, y, media}  (x, y : de 0 à 1 sur l'image, t : secondes)
+const boites={};   // id de la demande -> zone « Ajouter une modification »
+function pointable(media, j){
+  const w=document.createElement("div"); w.className="pointage";
+  const voile=document.createElement("div"); voile.className="voile-pt";
+  const consigne=document.createElement("div"); consigne.className="consigne-pt"; consigne.textContent="Touche l'endroit à changer, puis écris à Claude ce qu'il faut ajouter ou modifier.";
+  w.append(media, voile, consigne);
+  voile.addEventListener("click", e=>{
+    const r=media.getBoundingClientRect();
+    const nw=media.videoWidth||media.naturalWidth||r.width, nh=media.videoHeight||media.naturalHeight||r.height;
+    const k=Math.min(r.width/nw, r.height/nh), cw=nw*k, ch=nh*k, ox=(r.width-cw)/2, oy=(r.height-ch)/2;   // image réelle (object-fit: contain)
+    const x=(e.clientX-r.left-ox)/cw, y=(e.clientY-r.top-oy)/ch;
+    if(x<0||x>1||y<0||y>1) return;
+    const t = media.tagName==="VIDEO" ? Math.round(media.currentTime*10)/10 : null;
+    points[j.id]={t, x:Math.round(x*1000)/1000, y:Math.round(y*1000)/1000, media};
+    w.querySelectorAll(".repere").forEach(n=>n.remove());
+    const rep=document.createElement("div"); rep.className="repere"; rep.style.left=(ox+x*cw)+"px"; rep.style.top=(oy+y*ch)+"px"; w.append(rep);
+    w.classList.remove("actif");
+    const b=boites[j.id]; if(b){ b.box.hidden=false; b.lieu.textContent="Point choisi"+(t!=null?" à "+String(t).replace(".",",")+" s":"")+" : écris ce que Claude doit ajouter ou modifier à cet endroit."; b.ta.focus(); }
+  });
+  return w;
+}
+/* image de l'instant pointé, avec un cercle à l'endroit choisi : la session de montage la regarde */
+async function imagePointee(pt){
+  const m=pt.media; const nw=m.videoWidth||m.naturalWidth, nh=m.videoHeight||m.naturalHeight; if(!nw||!nh) return null;
+  const k=Math.min(1, 1080/Math.max(nw,nh)); const c=document.createElement("canvas"); c.width=Math.round(nw*k); c.height=Math.round(nh*k);
+  const g=c.getContext("2d"); g.drawImage(m,0,0,c.width,c.height);
+  g.lineWidth=Math.max(6,c.width/120); g.strokeStyle="#FF2D55"; g.beginPath(); g.arc(pt.x*c.width, pt.y*c.height, c.width/14, 0, Math.PI*2); g.stroke();
+  return await new Promise(r=>c.toBlob(r,"image/jpeg",.85));
+}
 
 /* La vidéo finie revient en morceaux de 18 Mo (pleine qualité) : on les recolle ici. */
 const vues={};
@@ -534,7 +602,7 @@ function render(){
       const montrer=src=>{ let media;
         if(image){ media=document.createElement("img"); media.className="result"; media.alt="Résultat du montage"; }
         else { media=document.createElement("video"); media.controls=true; media.playsInline=true; media.preload="metadata"; }
-        media.src=src; return media; };
+        media.src=src; return pointable(media, j); };
       if(morceaux.length===1) card.append(montrer("/_blob/"+morceaux[0]));
       else if(vues[j.id]) card.append(montrer(vues[j.id]));
       else { const zone=document.createElement("div"); zone.className="actions";
@@ -547,20 +615,26 @@ function render(){
       const a=document.createElement("div"); a.className="actions";
       const box=document.createElement("div"); box.className="step"; box.hidden=true;
       a.append(bouton("Récupérer la vidéo","btn", b=>recuperer(j,b)),
-               bouton("Ajouter une modification","btn ghost", ()=>{ box.hidden=!box.hidden; if(!box.hidden) ta.focus(); }));
+               bouton("Ajouter une modification","btn ghost", ()=>{ box.hidden=!box.hidden; if(!box.hidden) ta.focus(); }),
+               bouton("Pointer sur la vidéo","btn ghost", ()=>{ const w=card.querySelector(".pointage"); if(!w){ note.textContent="Appuie d'abord sur « Voir la vidéo »."; box.hidden=false; return; }
+                 w.classList.toggle("actif"); const v=w.querySelector("video"); if(v) v.pause(); }));
       card.append(a);
+      const lieu=document.createElement("p"); lieu.className="hint"; lieu.id="lieu-"+j.id;
       const ta=document.createElement("textarea"); ta.id="modif-"+j.id; ta.placeholder="Ex. : couper la fin, texte plus gros, plus court";
       const note=document.createElement("p"); note.className="hint";
       const go=bouton("Envoyer la modification","btn", async b=>{ const t=ta.value.trim(); if(!t){note.textContent="Écris ce qu'il faut changer.";return;}
-        b.disabled=true; try{ const mods=(j.modifications||[]).concat([{texte:t, le:new Date().toISOString()}]);
+        b.disabled=true; try{ const m={texte:t, le:new Date().toISOString()}; const pt=points[j.id];
+          if(pt){ m.point={t:pt.t, x:pt.x, y:pt.y}; try{ const img=await imagePointee(pt); if(img){ const up=await assets.upload(img,{type:"image/jpeg"}); m.image=up.id; } }catch(e){} }
+          const mods=(j.modifications||[]).concat([m]); delete points[j.id];
           await db.collection("demandes").doc(j.id).update({modifications:mods, statut:"modification", message:"", majLe:new Date().toISOString()});
           await lancer(j.id, "modification"); }
         catch(e){ note.textContent="L'envoi a échoué, réessaie."; b.disabled=false; } });
-      box.append(ta,go,note); card.append(box);
+      box.append(lieu,ta,go,note); card.append(box);
+      boites[j.id]={box, ta, lieu};
     }
     if((j.modifications||[]).length){
       const d=document.createElement("details"); const s=document.createElement("summary"); s.textContent=`Modifications demandées (${j.modifications.length})`;
-      const ul=document.createElement("ul"); j.modifications.forEach(x=>{const li=document.createElement("li"); li.textContent=`${fmtDate(x.le)} : ${x.texte}`; ul.append(li);});
+      const ul=document.createElement("ul"); j.modifications.forEach(x=>{const li=document.createElement("li"); li.textContent=`${fmtDate(x.le)} : ${x.texte}`+(x.point?` (au point choisi${x.point.t!=null?", à "+String(x.point.t).replace(".",",")+" s":""})`:""); ul.append(li);});
       d.append(s,ul); card.append(d);
     }
     if(j.fiche && !j.fiche.erreur){
