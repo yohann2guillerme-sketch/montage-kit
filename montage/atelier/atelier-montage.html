@@ -79,6 +79,8 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 .idc{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .apercu{position:relative;aspect-ratio:4/5;overflow:hidden;container-type:inline-size;isolation:isolate}
 .apercu img{max-width:none}
+.apercu.vise{cursor:crosshair;outline:3px solid var(--vif);outline-offset:-3px}
+.vise-repere{position:absolute;width:9cqw;height:9cqw;margin:-4.5cqw 0 0 -4.5cqw;border-radius:50%;border:4px solid #FF2D55;box-shadow:0 0 0 3px rgba(255,255,255,.9);pointer-events:none;z-index:5}
 .fonds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .fonds div{position:relative;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:var(--card2)}
 .fonds img{width:100%;height:100%;object-fit:cover;display:block}
@@ -543,7 +545,23 @@ function dessinerIdentites(){
     const pa=document.createElement("div"); pa.className="pastilles"; COULEURS.forEach(([k,lib])=>{ const i=document.createElement("i"); i.style.background=x[k]; i.title=lib; pa.append(i); }); pied.append(pa);
     if(x.note){ const nn=document.createElement("p"); nn.className="hint"; nn.textContent=x.note; pied.append(nn); }
     if(edition===x.id) pied.append(editeur(x, b=>remplirApercu(ap,b)));
-    else { const a=document.createElement("div"); a.className="actions"; a.append(bouton("Modifier","btn ghost", ()=>{ edition=x.id; dessinerIdentites(); })); pied.append(a); }
+    else {
+      if(reponsesVisee[x.id]){ const m=document.createElement("div"); m.className="msg info"; m.textContent=reponsesVisee[x.id]; pied.append(m);
+        if(dernierAvant[x.id]){ const u=document.createElement("div"); u.className="actions"; u.append(bouton("Annuler ce changement","btn ghost", async b=>{ b.disabled=true;
+          try{ const av=dernierAvant[x.id]; if(x.origine && !av.majLe && !av.retouches) await db.collection("identites").doc(x.id).delete(); else await db.collection("identites").doc(x.id).set(av);
+            delete dernierAvant[x.id]; delete reponsesVisee[x.id]; }catch(e){ b.disabled=false; } })); pied.append(u); } }
+      const zone=document.createElement("div"); zone.className="step"; zone.hidden=true;
+      const aide=document.createElement("p"); aide.className="hint vise-aide";
+      const ta=document.createElement("textarea"); ta.placeholder="Ex. : ce titre plus gros, en jaune ; enlève ce tampon ; fond plus sombre";
+      const za=document.createElement("div"); za.className="actions";
+      za.append(bouton("Appliquer","btn vif", b=>appliquerVisee(x, zone, ap, b)), bouton("Fermer","btn ghost", ()=>{ vise=null; finViser(ap); zone.hidden=true; }));
+      zone.append(aide, ta, za);
+      const a=document.createElement("div"); a.className="actions";
+      a.append(bouton("Viser et modifier","btn ghost", ()=>{ vise=x.id; viser(ap, x, zone); ap.scrollIntoView({behavior:"smooth",block:"center"}); }),
+               bouton("Modifier","btn ghost", ()=>{ edition=x.id; dessinerIdentites(); }));
+      pied.append(a, zone);
+      if(vise===x.id) viser(ap, x, zone);
+    }
     c.append(pied); zone.append(c);
   }
 }
@@ -745,7 +763,99 @@ function remplirApercu(ap,x){
   ap.textContent=""; ap.style.background=x.encre;
   const cle=ap.dataset.decor||"";
   (DECORS[cle]||decorLibre)(ap,x);
+  appliquerRetouches(ap,x);
 }
+/* retouches visées : {cible: texte d'origine ou "img:N", texte, echelle, couleur, masquer} */
+function cibleDans(ap, cible){
+  if(/^img:\d+$/.test(cible)) return ap.querySelectorAll("img")[+cible.slice(4)]||null;
+  let best=null; ap.querySelectorAll("*").forEach(e=>{ if(e.dataset.orig===cible || (!e.dataset.orig && e.children.length===0 && e.textContent.trim()===cible)) best=best||e; });
+  return best;
+}
+function appliquerRetouches(ap,x){
+  for(const rt of (x.retouches||[])){
+    const e=cibleDans(ap, rt.cible); if(!e) continue;
+    if(rt.masquer){ e.style.visibility="hidden"; continue; }
+    if(typeof rt.texte==="string" && e.tagName!=="IMG"){ if(!e.dataset.orig) e.dataset.orig=e.textContent.trim(); e.textContent=rt.texte; }
+    if(rt.couleur && /^#[0-9a-f]{6}$/i.test(rt.couleur)) e.style.color=rt.couleur;
+    if(rt.echelle>0.3 && rt.echelle<3){
+      if(e.tagName==="IMG") e.style.transform=(e.style.transform||"")+` scale(${rt.echelle})`;
+      else { const m=/([\d.]+)cqw/.exec(e.style.fontSize||""); if(m) e.style.fontSize=(parseFloat(m[1])*rt.echelle).toFixed(2)+"cqw"; else e.style.transform=`scale(${rt.echelle})`; }
+    }
+  }
+}
+/* « Viser et modifier » : on touche un endroit de l'aperçu, on écrit, Claude change l'identité */
+function viser(ap, x, zone){
+  const vieux=ap.querySelector(".vise-repere"); if(vieux) vieux.remove();
+  ap.classList.add("vise"); zone.hidden=false;
+  zone.querySelector(".vise-aide").textContent="Touche l'endroit à changer sur l'aperçu.";
+  ap.onclick=ev=>{
+    const rc=ap.getBoundingClientRect(); const px=(ev.clientX-rc.left)/rc.width, py=(ev.clientY-rc.top)/rc.height;
+    ap.querySelectorAll(".vise-repere").forEach(n=>n.remove());
+    const m=document.createElement("div"); m.className="vise-repere"; m.style.left=(px*100)+"%"; m.style.top=(py*100)+"%"; ap.append(m);
+    // ce qui est sous le doigt : le texte le plus petit, sinon une image, sinon le fond
+    // par la géométrie (certains calques ignorent le doigt) : le plus petit texte sous le point, sinon la plus petite image
+    const dedans=e=>{ const q=e.getBoundingClientRect(); return q.width>0 && ev.clientX>=q.left && ev.clientX<=q.right && ev.clientY>=q.top && ev.clientY<=q.bottom ? q.width*q.height : 0; };
+    const plusPetit=l=>l.map(e=>[e,dedans(e)]).filter(([,a])=>a>0).sort((u,v)=>u[1]-v[1]).map(([e])=>e)[0];
+    const txt=plusPetit([...ap.querySelectorAll("*")].filter(e=>e.tagName!=="IMG" && e.tagName!=="CANVAS" && !e.classList.contains("vise-repere") && e.children.length===0 && e.textContent.trim()));
+    const im=plusPetit([...ap.querySelectorAll("img")]);
+    let cible="fond", desc="le fond de l'aperçu";
+    if(txt){ cible=txt.dataset.orig||txt.textContent.trim(); desc=`le texte « ${txt.textContent.trim()} » (couleur ${getComputedStyle(txt).color}, police ${getComputedStyle(txt).fontFamily.split(",")[0]})`; }
+    else if(im){ const n=[...ap.querySelectorAll("img")].indexOf(im); cible="img:"+n; desc=/paire|webp/.test(im.src)?"la paire de chaussures":"la photo du magasin"; }
+    zone.dataset.cible=cible; zone.dataset.desc=desc; zone.dataset.x=px.toFixed(3); zone.dataset.y=py.toFixed(3);
+    zone.querySelector(".vise-aide").textContent="Visé : "+desc+". Écris ce que tu veux.";
+    zone.querySelector("textarea").focus();
+  };
+}
+function finViser(ap){ ap.classList.remove("vise"); ap.onclick=null; ap.querySelectorAll(".vise-repere").forEach(n=>n.remove()); }
+const COUL_RE=/^#[0-9a-f]{6}$/i;
+function nettoyerProposition(x, r){
+  const out={}; const id=r&&r.identite||{};
+  for(const [k] of COULEURS) if(COUL_RE.test(id[k]||"")) out[k]=id[k];
+  for(const cle of ["titre","texte"]){ const t=id[cle]; if(!t) continue; const n={...x[cle]};
+    if(t.famille && POLICES[t.famille]){ n.famille=t.famille; const [po,st]=POLICES[t.famille][cle==="titre"?0:1]; n.poids=po; n.style=st; }
+    if(t.casse==="maj"||t.casse==="normal") n.casse=t.casse;
+    if(typeof t.espacement==="number" && t.espacement>=-0.1 && t.espacement<=0.5) n.espacement=t.espacement;
+    out[cle]=n; }
+  let rt=null; const q=r&&r.retouche;
+  if(q && typeof q==="object"){ rt={}; if(typeof q.texte==="string" && q.texte.length<=80) rt.texte=q.texte;
+    if(typeof q.echelle==="number") rt.echelle=Math.min(2.5,Math.max(0.4,q.echelle)); if(COUL_RE.test(q.couleur||"")) rt.couleur=q.couleur; if(q.masquer===true) rt.masquer=true;
+    if(!Object.keys(rt).length) rt=null; }
+  const note=(r&&typeof r.note==="string")?r.note.slice(0,200):"";
+  return {modifs:out, retouche:rt, note, reponse:(r&&typeof r.reponse==="string")?r.reponse.slice(0,240):""};
+}
+async function appliquerVisee(x, zone, ap, btn){
+  const demande=zone.querySelector("textarea").value.trim(); const msg=zone.querySelector(".vise-aide");
+  if(!zone.dataset.cible){ msg.textContent="Touche d'abord l'endroit sur l'aperçu."; return; }
+  if(!demande){ msg.textContent="Écris ce que tu veux changer."; return; }
+  if(!sample){ msg.textContent="Claude n'est pas disponible ici : utilise « Modifier »."; return; }
+  btn.disabled=true; msg.textContent="Claude modifie l'identité…";
+  const consigne=`Tu règles une identité visuelle de vidéos pour réseaux sociaux. Voici l'identité actuelle (JSON) :
+${JSON.stringify({encre:x.encre,clair:x.clair,fort:x.fort,accent:x.accent,gris:x.gris,titre:x.titre,texte:x.texte,note:x.note||""})}
+Rôles : encre = fond, fort = titres, clair = textes, accent = couleur forte (bandeaux, boutons), gris = textes discrets.
+Polices possibles (titre ou texte) : ${Object.keys(POLICES).join(", ")}.
+La personne a touché ${zone.dataset.desc}, à ${Math.round(zone.dataset.x*100)} % de la largeur et ${Math.round(zone.dataset.y*100)} % de la hauteur de l'aperçu.
+Sa demande : « ${demande} »
+Réponds seulement en JSON :
+{"identite": {seulement les clés à changer parmi encre, clair, fort, accent, gris (couleurs #RRGGBB), titre et texte (famille, casse "maj" ou "normal", espacement en em)},
+ "retouche": {pour l'élément touché seulement, si la demande le vise : "texte" (nouveau texte court), "echelle" (1.3 = 30 % plus grand), "couleur" (#RRGGBB), "masquer" (true)} ou null,
+ "note": "une consigne courte pour le monteur si la demande ne se règle pas avec ces clés, sinon vide",
+ "reponse": "une phrase simple qui dit ce que tu as changé"}
+Change le moins possible. N'invente aucun prix ni aucune promotion.`;
+  try{
+    const r=nettoyerProposition(x, await sample.json(consigne,{modelTier:"default"}));
+    const avant={...(modifiees[x.id]||ORIGINES[x.id]||x)}; delete avant.origine; delete avant.id;
+    const retouches=(x.retouches||[]).filter(t=>t.cible!==zone.dataset.cible);
+    if(r.retouche) retouches.push({cible:zone.dataset.cible, ...r.retouche});
+    const note=[x.note||"", r.note].filter(Boolean).join(" ").trim();
+    const doc={nom:x.nom, base:x.base, encre:x.encre, clair:x.clair, fort:x.fort, accent:x.accent, gris:x.gris, titre:x.titre, texte:x.texte,
+      ...r.modifs, note, retouches, majLe:new Date().toISOString()};
+    dernierAvant[x.id]=avant; reponsesVisee[x.id]=r.reponse||"C'est modifié."; vise=null;
+    try{ await db.collection("identites").doc(x.id).set(doc); }
+    catch(err){ delete dernierAvant[x.id]; delete reponsesVisee[x.id]; vise=x.id; throw err; }
+    dessinerIdentites();
+  }catch(e){ btn.disabled=false; msg.textContent=(e&&e.code==="rate_limited")?"Trop de demandes d'un coup : réessaie dans une minute.":"Ça n'a pas marché, réessaie ou utilise « Modifier »."; }
+}
+const dernierAvant={}, reponsesVisee={}; let vise=null;
 function clair(hex){ const h=(hex||"#000").replace("#",""); const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16); return (0.299*r+0.587*g+0.114*b)>150; }
 function editeur(x, rafraichir){
   const brouillon=copie(x);
@@ -761,7 +871,7 @@ function editeur(x, rafraichir){
   const a=document.createElement("div"); a.className="actions";
   a.append(bouton("Enregistrer","btn", async b=>{ b.disabled=true; idMsg("");
     try{ const doc={nom: inom.value.trim()||x.nom, base:x.base, encre:brouillon.encre, clair:brouillon.clair, fort:brouillon.fort, accent:brouillon.accent, gris:brouillon.gris,
-        titre:brouillon.titre, texte:brouillon.texte, note:x.note||"", majLe:new Date().toISOString()};
+        titre:brouillon.titre, texte:brouillon.texte, note:x.note||"", retouches:x.retouches||[], majLe:new Date().toISOString()};
       await db.collection("identites").doc(x.id).set(doc); edition=null; }
     catch(err){ b.disabled=false; idMsg("L'enregistrement a échoué. Réessaie."); } }));
   a.append(bouton("Annuler","btn ghost", ()=>{ edition=null; dessinerIdentites(); }));

@@ -116,6 +116,11 @@ Chaque identité a un vrai aperçu (affiche, duel, carnet, VHS, néons…) fait 
 de la page (document « reglages/fonds » : photos et paires détourées, en assets de la page). On les ajoute ou les retire dans
 l'onglet Identités, « Photos du magasin ». Aucune photo n'est dans le dépôt.
 
+« Viser et modifier » : on touche un endroit de l'aperçu (un titre, une paire, le fond), on écrit ce qu'on veut, et le Claude du
+compte change l'identité (couleurs, polices, majuscules) et retouche l'élément visé dans l'aperçu (texte, taille, couleur,
+masquer). Ce qui ne se règle pas ainsi va dans « note », que la session de montage respecte. « Annuler ce changement » revient
+en arrière.
+
 ## Mes vidéos : Reels, Stories, Posts
 
 La liste des vidéos est rangée en trois onglets selon le type choisi (une ancienne demande sans type va dans Reels). Sous chaque
