@@ -25,10 +25,15 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+if os.name == 'nt' and not sys.flags.utf8_mode:      # Windows : tout en UTF-8 (fiches, accents, messages), enfants compris
+    os.environ['PYTHONUTF8'] = '1'
+    sys.exit(subprocess.call([sys.executable, '-X', 'utf8'] + sys.argv))
 
 KIT = Path(__file__).resolve().parent
 sys.path.insert(0, str(KIT / 'outils'))
@@ -269,7 +274,7 @@ def _node(travail, mode, **opts):
     moteur = KIT / 'moteur'
     if not (moteur / 'node_modules' / 'remotion').exists():
         dire('Première utilisation : installation du moteur (une fois, environ 30 s)…')
-        r = subprocess.run(['npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], cwd=moteur, capture_output=True, text=True)
+        r = subprocess.run([shutil.which('npm') or 'npm', 'install', '--no-audit', '--no-fund', '--loglevel=error'], cwd=moteur, capture_output=True, text=True)
         if r.returncode:
             dire('Installation impossible :', r.stderr.strip()[-400:]); sys.exit(1)
     opts = {**RES.remotion(), **opts}           # sur le Mac : onglets, fils de l'encodeur, cache, rendu sans la carte graphique

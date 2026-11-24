@@ -5,7 +5,7 @@ Tout se fait en trois gestes. Rien n'est jamais publié sur un réseau social.
 1. **Avant** : installe l'appli Claude (claude.ai/download) et connecte-toi avec ton compte. Les montages utilisent ton abonnement Claude.
 2. **Installer** : décompresse ce dossier dans « Documents » (garde le nom `AtelierMontage`), puis double-clique :
    - sur Mac : `installeur/installer-mac.command` (si le Mac refuse : clic droit › Ouvrir › Ouvrir) ;
-   - sur Windows : `installeur/installer-windows.bat`.
+   - sur Windows : `installeur/installer-windows.bat` (si Windows affiche « Windows a protégé votre ordinateur » : Informations complémentaires › Exécuter quand même ; s'il demande l'autorisation de faire des modifications : Oui).
    Compte 10 à 20 minutes. À la fin, la fenêtre dit « Tout est prêt ».
 3. **Brancher** : ouvre l'appli Claude, onglet **Claude Code**, choisis le dossier `AtelierMontage`, et écris :
    « Suis montage/atelier/MODE-EMPLOI.md, partie Brancher l'atelier sur l'ordinateur ».

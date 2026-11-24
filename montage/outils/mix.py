@@ -20,7 +20,7 @@ SR = 48000
 
 MODELE_VOIX = DEPOT / 'plugin-visibilite' / 'visibilite' / 'assets' / 'models' / 'rnnoise-voix.rnnn'
 # voix face caméra : coupe le grondement, enlève le bruit de fond (réseau de neurones rnnoise), resserre les écarts de niveau
-VOIX_PROPRE = f"aresample=48000,highpass=f=80,arnndn=m='{MODELE_VOIX}':mix=0.9,acompressor=threshold=-20dB:ratio=3:attack=6:release=140:makeup=1.5"
+VOIX_PROPRE = f"aresample=48000,highpass=f=80,arnndn=m='{RES.chemin_ffmpeg(MODELE_VOIX)}':mix=0.9,acompressor=threshold=-20dB:ratio=3:attack=6:release=140:makeup=1.5"
 
 
 def _charge(fichier, debut=0.0, duree=None, filtres=None):

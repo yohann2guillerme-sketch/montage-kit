@@ -227,6 +227,14 @@ def _priorite_basse():
         pass
 
 
+def chemin_ffmpeg(p):
+    """Chemin d'un fichier dans un filtre ffmpeg (entre apostrophes) : sous Windows, barres « / » et « : » protégé (C\\:/Users/...)."""
+    p = str(p)
+    if os.name == 'nt':
+        p = p.replace('\\', '/').replace(':', '\\:')
+    return p
+
+
 def chemin_verrou():
     if os.environ.get('MONTAGE_VERROU'):
         return Path(os.environ['MONTAGE_VERROU'])

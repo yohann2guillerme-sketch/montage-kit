@@ -41,7 +41,7 @@ const marque = path.join(paquet, 'cle.txt');
 let serveUrl = paquet;
 if (!(fs.existsSync(marque) && fs.readFileSync(marque, 'utf8') === sources && fs.existsSync(path.join(paquet, 'index.html')))) {
   fs.rmSync(paquet, {recursive: true, force: true});
-  serveUrl = await bundle({entryPoint: path.join(ici, 'src/index.jsx'), rootDir: ici, publicDir: path.join(travail, 'public'), outDir: paquet, symlinkPublicDir: true});
+  serveUrl = await bundle({entryPoint: path.join(ici, 'src/index.jsx'), rootDir: ici, publicDir: path.join(travail, 'public'), outDir: paquet, symlinkPublicDir: process.platform !== 'win32'});
   fs.writeFileSync(marque, sources);
 }
 const inputProps = {...cfg, zones: o.zones === '1' ? cfg.zones_instagram : null, audio: mode === 'images' ? null : cfg.audio};

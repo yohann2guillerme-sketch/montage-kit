@@ -80,7 +80,7 @@ def _plan_video(q, cfg, dossier):
     entree = q['_entree']
     sdr = q['_conv'] or 'format=yuv420p'
     trf = dossier.parent / f'{q["id"]}.trf'
-    lut = f"lut3d=file='{q['_lut']}':interp=tetrahedral" if q.get('_lut') else ''
+    lut = "lut3d=file='" + RES.chemin_ffmpeg(q['_lut']) + "':interp=tetrahedral" if q.get('_lut') else ''
     etal = ETALONNAGES.get(q['_etalonnage'], q['_etalonnage'] or '')
     detect = None
     if q.get('_stabilise'):   # plan filmé à la main : on mesure les mouvements de la caméra, puis on les lisse (léger zoom pour cacher les bords)
