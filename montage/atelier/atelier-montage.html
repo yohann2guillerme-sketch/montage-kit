@@ -129,8 +129,8 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
     </div>
 
     <div class="step">
-      <div class="q"><b>1</b><span>Quel type de montage ?</span></div>
-      <div class="chips" id="type" role="group" aria-label="Type de montage">
+      <div class="q"><b>1</b><span>Quel type de montage ? <span class="hint">(un ou plusieurs)</span></span></div>
+      <div class="chips" id="type" role="group" aria-label="Type de montage, un ou plusieurs">
         <button type="button" class="chip" data-v="Story">Story</button>
         <button type="button" class="chip" data-v="Reel" aria-pressed="true">Reel</button>
         <button type="button" class="chip" data-v="Post">Post</button>
@@ -232,13 +232,21 @@ function chipGroup(id){
     if(id==="objectif") $("objectif-libre").value="";
   });
 }
-chipGroup("type"); chipGroup("duree"); chipGroup("objectif");
+$("type").addEventListener("click", e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  const on=b.getAttribute("aria-pressed")==="true";
+  if(on && typesChoisis().length===1) return; // il en faut au moins un
+  b.setAttribute("aria-pressed", on?"false":"true");
+});
+function typesChoisis(){ return [...$("type").querySelectorAll('.chip[aria-pressed="true"]')].map(x=>x.dataset.v); }
+chipGroup("duree"); chipGroup("objectif");
 const TYPES={
   Story:{format:"9:16", aide:"Story : verticale plein écran (9:16), 15 s conseillées ; rien d'important tout en haut ni tout en bas."},
   Reel:{format:"9:16", aide:"Reel : vidéo verticale plein écran (9:16)."},
   Post:{format:"4:5", aide:"Post : pour le fil Instagram et Facebook (4:5, 1080 × 1350)."}
 };
-$("type").addEventListener("click",()=>{ const t=TYPES[val("type")]; if(t) $("type-aide").textContent=t.aide; });
+function aideTypes(){ const t=typesChoisis(); $("type-aide").textContent = t.map(x=>TYPES[x].aide).join(" ") + (t.length>1?` Tu recevras ${t.length} vidéos à part.`:""); }
+$("type").addEventListener("click", aideTypes);
 $("objectif-libre").addEventListener("input",()=>{ if($("objectif-libre").value) $("objectif").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed","false")); });
 const val = id => { const b=$(id).querySelector('[aria-pressed="true"]'); return b?b.dataset.v:""; };
 
@@ -354,16 +362,24 @@ $("form").addEventListener("submit", async e=>{
     }
     progress(.98,"Envoi de la demande…");
     const idChoisie=identiteChoisie();
-    const typeM=val("type")||"Reel";
-    const demande={ type:typeM, format:(TYPES[typeM]||TYPES.Reel).format, duree:val("duree"), objectif, contenu, autre:$("autre").value.trim(), identite: idChoisie };
-    const ref=db.collection("demandes").doc();
-    const maintenant=new Date().toISOString();
-    await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
+    const types=typesChoisis(); if(!types.length) types.push("Reel");
+    const commun={ duree:val("duree"), objectif, contenu, autre:$("autre").value.trim(), identite: idChoisie };
+    // une demande par type : chacune a sa vidéo, ses modifications ; les fichiers envoyés une seule fois sont partagés
+    const lot=[];
+    for(const typeM of types){
+      const demande={ type:typeM, format:(TYPES[typeM]||TYPES.Reel).format, ...commun };
+      const ref=db.collection("demandes").doc();
+      const maintenant=new Date().toISOString();
+      await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
+      lot.push({ref, demande});
+    }
     resetForm();
-    const fiche = await ficheDeMontage(demande, fichiers, images.slice(0,8));
-    if(fiche) await ref.update({ fiche }).catch(()=>{});
-    await lancer(ref.id, "en_attente");
-    progress(1,"C'est envoyé. Ta vidéo apparaît dans « Mes vidéos ».");
+    for(const {ref, demande} of lot){
+      const fiche = await ficheDeMontage(demande, fichiers, images.slice(0,8));
+      if(fiche) await ref.update({ fiche }).catch(()=>{});
+      await lancer(ref.id, "en_attente");
+    }
+    progress(1, lot.length>1 ? `C'est envoyé : ${lot.length} vidéos (${types.join(", ")}) apparaissent dans « Mes vidéos ».` : "C'est envoyé. Ta vidéo apparaît dans « Mes vidéos ».");
     setTimeout(()=>{$("progress").hidden=true;},4000);
   }catch(err){
     const m={too_large:"un fichier est trop lourd", unsupported_type:"ce type de fichier n'est pas accepté (essaie en MP4 ou JPEG)", quota_or_state:"l'atelier est plein : supprime d'anciennes vidéos"}[err&&err.code];

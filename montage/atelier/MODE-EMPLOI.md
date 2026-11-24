@@ -1,6 +1,6 @@
 # Atelier montage : mode d'emploi pour le Claude qui l'installe
 
-L'atelier est une page claude.ai très simple : on dépose une photo ou une vidéo, on choisit Story, Reel ou Post, on répond à 3 questions (durée, objectif, contenu) et à
+L'atelier est une page claude.ai très simple : on dépose une photo ou une vidéo, on choisit Story, Reel ou Post (un ou plusieurs), on répond à 3 questions (durée, objectif, contenu) et à
 une « autre demande » libre, puis « Lancer le montage ». Quelques minutes plus tard la vidéo finie apparaît dans la page, avec
 « Récupérer la vidéo » et « Ajouter une modification ».
 
@@ -84,6 +84,7 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
    « rien à corriger » et le contrôle « BON ». Une photo seule donne une vidéo courte animée, sauf si la demande parle d'une image.
    « type » (Story, Reel ou Post) donne la clé "format" de la fiche : « format » de la demande (Story et Reel : "9:16",
    Post : "4:5"). Story : 15 s conseillées, aucun texte dans le haut et le bas de l'image (zones de l'appli). Sans « type », Reel.
+   Si plusieurs types sont cochés, la page crée une demande par type (mêmes fichiers) : chaque session ne fait que le sien.
    Si « identite » est rempli, mets « identite.theme » tel quel dans la clé "theme" de la fiche (identité choisie dans l'onglet
    « Identités visuelles » de la page) ; sinon choisis un thème du kit.
    Si « identite.note » est rempli, respecte-la (exemple : Arcade, police sans majuscules accentuées : textes sans accents).
