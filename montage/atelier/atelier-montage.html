@@ -26,6 +26,7 @@ h2{font-size:1.3rem;font-weight:600}
 p{margin:0}
 .lead{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:18px}
+[hidden]{display:none!important}
 .step{display:flex;flex-direction:column;gap:10px}
 .q{font-weight:600;display:flex;gap:10px;align-items:baseline}
 .q b{font-family:var(--display);color:var(--accent);font-size:1.05rem;min-width:1.2em}
@@ -74,6 +75,9 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 .tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
 .tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
+.legende{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+.legende b{font-size:.9em}
+.legende p{margin:0;white-space:pre-wrap;line-height:1.45}
 .ids{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .idc{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .apercu{aspect-ratio:4/5;max-width:100%;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
@@ -185,6 +189,11 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
 
   <section style="display:flex;flex-direction:column;gap:12px">
     <h2>Mes vidéos</h2>
+    <nav class="tabs" id="categories" role="tablist" aria-label="Type de vidéo">
+      <button type="button" role="tab" data-cat="Reel" aria-selected="true">Reels</button>
+      <button type="button" role="tab" data-cat="Story" aria-selected="false">Stories</button>
+      <button type="button" role="tab" data-cat="Post" aria-selected="false">Posts</button>
+    </nav>
     <div class="list" id="list"><div class="empty">Chargement de tes vidéos…</div></div>
   </section>
   </div>
@@ -373,7 +382,7 @@ $("form").addEventListener("submit", async e=>{
       await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
       lot.push({ref, demande});
     }
-    resetForm();
+    resetForm(); categorie=types[0]; render();
     for(const {ref, demande} of lot){
       const fiche = await ficheDeMontage(demande, fichiers, images.slice(0,8));
       if(fiche) await ref.update({ fiche }).catch(()=>{});
@@ -607,10 +616,32 @@ async function assembler(j){
 }
 function fmtDate(s){ try{ return new Date(s).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } }
 function bouton(txt, cls, fn){ const b=document.createElement("button"); b.type="button"; b.className=cls; b.textContent=txt; b.onclick=()=>fn(b); return b; }
+let categorie="Reel";
+try{ const c=localStorage.getItem("atelier-categorie"); if(["Reel","Story","Post"].includes(c)) categorie=c; }catch(e){}
+const typeDe = j => ["Reel","Story","Post"].includes(j.type) ? j.type : "Reel";
+const NOMS_CAT={Reel:"Reels", Story:"Stories", Post:"Posts"};
+$("categories").addEventListener("click", e=>{ const b=e.target.closest("[data-cat]"); if(!b) return;
+  categorie=b.dataset.cat; try{ localStorage.setItem("atelier-categorie", categorie); }catch(err){} render(); });
+function blocLegende(j){
+  if(j.statut!=="terminee" || !j.legende) return null;
+  const story=typeDe(j)==="Story";
+  const d=document.createElement("div"); d.className="legende";
+  const t=document.createElement("b"); t.textContent= story ? "Texte et idée pour la story" : "Légende à copier";
+  const p=document.createElement("p"); p.textContent=j.legende;
+  const a=document.createElement("div"); a.className="actions";
+  a.append(bouton("Copier","btn ghost", async b=>{ try{ await navigator.clipboard.writeText(j.legende); b.textContent="Copié"; }catch(e){ b.textContent="Sélectionne le texte et copie-le"; } setTimeout(()=>{b.textContent="Copier";},2500); }));
+  const n=document.createElement("span"); n.className="hint"; n.textContent="Rien n'est publié : tu la colles toi-même.";
+  a.append(n);
+  d.append(t,p,a); return d;
+}
 function render(){
   const L=$("list"); L.textContent="";
+  $("categories").querySelectorAll("[data-cat]").forEach(b=>{ const c=b.dataset.cat; const nb=jobs.filter(j=>typeDe(j)===c).length;
+    b.setAttribute("aria-selected", c===categorie?"true":"false"); b.textContent=NOMS_CAT[c]+(nb?` (${nb})`:""); });
   if(!jobs.length){ const e=document.createElement("div"); e.className="empty"; e.textContent="Aucune vidéo pour l'instant. Remplis le formulaire au-dessus pour lancer la première."; L.append(e); return; }
-  for(const j of jobs){
+  const liste=jobs.filter(j=>typeDe(j)===categorie);
+  if(!liste.length){ const e=document.createElement("div"); e.className="empty"; e.textContent={Reel:"Aucun Reel pour l'instant.",Story:"Aucune story pour l'instant.",Post:"Aucun post pour l'instant."}[categorie]; L.append(e); return; }
+  for(const j of liste){
     const card=document.createElement("article"); card.className="job";
     const top=document.createElement("div"); top.className="job-top";
     const info=document.createElement("div");
@@ -645,6 +676,7 @@ function render(){
           catch(e){ b.disabled=false; b.textContent="Voir la vidéo (réessayer)"; } }));
         card.append(zone); }
     }
+    const leg=blocLegende(j); if(leg) card.append(leg);
     if(j.statut==="terminee" && morceaux.length){
       const a=document.createElement("div"); a.className="actions";
       const box=document.createElement("div"); box.className="step"; box.hidden=true;

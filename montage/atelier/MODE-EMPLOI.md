@@ -14,7 +14,7 @@ Page de l'atelier ──(bouton)──> tâche programmée du compte ──> ses
       └──────────── vidéo finie + statut « Prête » <───────────────┘
 ```
 
-Rien n'est jamais publié : l'atelier rend un fichier, c'est tout. Aucun outil ne touche aux comptes Instagram, Facebook ou Google.
+Rien n'est jamais publié : l'atelier rend un fichier et sa légende à copier, c'est tout. Aucun outil ne touche aux comptes Instagram, Facebook ou Google.
 
 ## Ce qu'il faut avant
 
@@ -93,6 +93,10 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
    outil Artifact, action publish, url ATELIER, asset true, file_path = ce morceau. Note les id renvoyés, dans l'ordre.
 7. ArtifactData update de demandes/<id> : statut « terminee »,
    resultat {"morceaux": ["<id1>", "<id2>", ...], "nom": "<nom>.mp4", "type": "video/mp4", "octets": <taille>},
+   legende : le texte à coller sous la vidéo, écrit comme le service réseaux (ton du commerce, simple et sympa, une
+   accroche, 2 à 4 phrases, un appel à venir ou à réagir, 5 hashtags au plus ; aucun prix, aucune remise, aucune promo
+   qui ne soit écrite dans la demande). Story : pas de légende, mais le texte à poser sur la story et une idée de sticker
+   (sondage, question, lien), en deux lignes.
    message : une ou deux phrases simples (ce que tu as fait ; les coupes « à écouter au casque » s'il y en a).
    La page recolle les morceaux quand on appuie sur « Voir la vidéo » ou « Récupérer la vidéo ».
 8. Problème que tu ne peux pas régler : statut « erreur » et message qui dit en mots simples quoi faire.
@@ -107,6 +111,11 @@ Stop-motion papier, Nuit, Arcade, Affiche), traduites en couleurs et polices du 
 (fond, titres, textes, couleur forte, gris), la police des titres et des textes, les majuscules, et on peut en créer de nouvelles. Les
 changements sont gardés dans la base de la page (collection « identites ») ; « Revenir à l'origine » efface une modification. Dans le
 formulaire, on choisit l'identité d'une vidéo ; la demande en emporte une copie (« identite »), que la session met dans la fiche.
+
+## Mes vidéos : Reels, Stories, Posts
+
+La liste des vidéos est rangée en trois onglets selon le type choisi (une ancienne demande sans type va dans Reels). Sous chaque
+vidéo prête, la légende écrite par la session (« legende ») s'affiche avec un bouton « Copier ». Rien n'est publié.
 
 ## Pointer sur la vidéo finie
 
