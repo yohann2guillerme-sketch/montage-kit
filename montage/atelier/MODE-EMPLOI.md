@@ -79,6 +79,8 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
 5. Monte avec le skill montage-pro : python3 montage/montage.py nouveau ~/montages/<id>, rushes, fiche montage.json d'après « duree »,
    « objectif », « contenu » et « autre », verifier jusqu'à zéro [erreur], planche, final. Livre seulement si la garde-tête dit
    « rien à corriger » et le contrôle « BON ». Une photo seule donne une vidéo courte animée, sauf si la demande parle d'une image.
+   Si « identite » est rempli, mets « identite.theme » tel quel dans la clé "theme" de la fiche (identité choisie dans l'onglet
+   « Identités visuelles » de la page) ; sinon choisis un thème du kit.
 6. Renvoie la vidéo finie en pleine qualité, sans la réencoder : coupe-la en morceaux de 18 Mo
    (split -b 18874368 -d -a 2 --additional-suffix=.mp4 <video> morceau-), puis, pour chaque morceau dans l'ordre :
    outil Artifact, action publish, url ATELIER, asset true, file_path = ce morceau. Note les id renvoyés, dans l'ordre.
@@ -89,6 +91,13 @@ Le message qui suit contient « DEMANDE <id> ». Fais ceci, sans poser de questi
 8. Problème que tu ne peux pas régler : statut « erreur » et message qui dit en mots simples quoi faire.
 Ne publie rien sur aucun réseau social. N'écris rien dans le dépôt. Ne pousse rien.
 ```
+
+## Onglet « Identités visuelles »
+
+La page montre les identités visuelles du logiciel (Foulées, Télémétrie, Cinéma, Neutre), avec un aperçu. On y change les couleurs
+(fond, titres, textes, couleur forte, gris), la police des titres et des textes, les majuscules, et on peut en créer de nouvelles. Les
+changements sont gardés dans la base de la page (collection « identites ») ; « Revenir à l'origine » efface une modification. Dans le
+formulaire, on choisit l'identité d'une vidéo ; la demande en emporte une copie (« identite »), que la session met dans la fiche.
 
 ## Si le bouton ne marche pas
 

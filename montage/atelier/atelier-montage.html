@@ -1,6 +1,6 @@
 <title>Atelier montage</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700;800;900&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,900;1,800;1,900&family=Bebas+Neue&family=Archivo+Black&family=Caveat:wght@700&family=DM+Serif+Display:ital@0;1&family=Montserrat:wght@800;900&family=Poppins:wght@700;800&family=JetBrains+Mono:wght@600&display=swap">
 <style>
 /* Layout : une seule colonne étroite, façon appli de téléphone ; le formulaire en haut, les vidéos dessous. */
 :root{
@@ -71,6 +71,26 @@ details{font-size:.92rem}
 details summary{cursor:pointer;color:var(--muted)}
 details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .empty{text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);border-radius:18px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:10px 8px;border-radius:10px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
+.ids{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.idc{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.apercu{aspect-ratio:4/5;max-width:100%;padding:22px 18px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.apercu .t{font-size:2.2rem;line-height:1;overflow-wrap:anywhere}
+.apercu .s{font-size:1rem}
+.apercu .tag{align-self:flex-start;font-size:.72rem;padding:3px 8px;border-radius:4px;letter-spacing:.1em;text-transform:uppercase;font-family:"JetBrains Mono",monospace}
+.apercu .bande{height:6px;width:46%;border-radius:3px}
+.idc .pied{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.idc .nom{font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.idc .nom small{color:var(--muted);font-weight:400}
+.pastilles{display:flex;gap:6px}
+.pastilles i{width:22px;height:22px;border-radius:50%;border:1px solid var(--line)}
+.edit{display:flex;flex-direction:column;gap:10px}
+.edit label{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.92rem}
+.edit input[type=color]{width:46px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:2px}
+.edit select{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px;font:inherit;max-width:60%}
+.idc .actions .btn{flex:1 1 110px;padding:10px 12px;font-size:.92rem}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 
@@ -79,6 +99,13 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
     <h1>Atelier montage</h1>
     <p class="lead">Envoie tes photos ou vidéos, réponds à 3 questions, et ton Claude monte la vidéo pour toi. Tu la récupères ici quand elle est prête.</p>
   </header>
+
+  <nav class="tabs" role="tablist" aria-label="Rubriques">
+    <button type="button" role="tab" id="tab-montages" aria-selected="true" aria-controls="vue-montages">Montages</button>
+    <button type="button" role="tab" id="tab-identites" aria-selected="false" aria-controls="vue-identites">Identités visuelles</button>
+  </nav>
+
+  <div id="vue-montages" role="tabpanel" aria-labelledby="tab-montages" style="display:flex;flex-direction:column;gap:22px">
 
   <div id="unavailable" class="msg bad" hidden></div>
   <div id="branchement" class="msg warn" hidden>Ton Claude n'est pas encore branché à cet atelier. Demande-lui : « Suis montage/atelier/MODE-EMPLOI.md, partie Brancher l'atelier ». Tu peux déjà envoyer tes fichiers : ils partiront au montage dès que c'est branché.</div>
@@ -126,6 +153,11 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
       <textarea id="autre" placeholder="Ex. : sous-titres, pas de musique, mettre le logo à la fin"></textarea>
     </div>
 
+    <div class="step">
+      <div class="q"><b>+</b><span>Identité visuelle <span class="hint">(facultatif)</span></span></div>
+      <div class="chips" id="identite" role="group" aria-label="Identité visuelle"></div>
+    </div>
+
     <div id="progress" class="step" hidden>
       <div class="bar"><i id="bar"></i></div>
       <p class="hint" id="progress-text"></p>
@@ -138,6 +170,19 @@ details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;g
   <section style="display:flex;flex-direction:column;gap:12px">
     <h2>Mes vidéos</h2>
     <div class="list" id="list"><div class="empty">Chargement de tes vidéos…</div></div>
+  </section>
+  </div>
+
+  <section id="vue-identites" role="tabpanel" aria-labelledby="tab-identites" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+        <h2>Identités visuelles</h2>
+        <p class="hint">Les couleurs et les polices des textes de tes vidéos. Modifie-les ici : le prochain montage les suit.</p>
+      </div>
+      <button type="button" class="btn ghost" id="nouvelle-id">Nouvelle identité</button>
+    </div>
+    <div id="id-msg" class="msg bad" hidden></div>
+    <div class="ids" id="ids"></div>
   </section>
 </div>
 
@@ -286,7 +331,8 @@ $("form").addEventListener("submit", async e=>{
       fichiers.push({...f, dureeSec:fr.duree, largeur:fr.largeur, hauteur:fr.hauteur});
     }
     progress(.98,"Envoi de la demande…");
-    const demande={ duree:val("duree"), objectif, contenu, autre:$("autre").value.trim() };
+    const idChoisie=identiteChoisie();
+    const demande={ duree:val("duree"), objectif, contenu, autre:$("autre").value.trim(), identite: idChoisie };
     const ref=db.collection("demandes").doc();
     const maintenant=new Date().toISOString();
     await ref.set({ ...demande, fichiers, statut:"preparation", creeLe:maintenant, majLe:maintenant, modifications:[], resultat:null, message:"" });
@@ -317,6 +363,7 @@ Demande du commerçant :
 - Objectif : ${d.objectif}
 - Contenu attendu : ${d.contenu}
 - Autre demande : ${d.autre||"aucune"}
+- Identité visuelle : ${d.identite ? d.identite.nom : "au choix du monteur"}
 Fichiers reçus, dans l'ordre : ${fichiers.map((f,i)=>`${i+1}. ${f.type} « ${f.nom} »${f.dureeSec?` (${f.dureeSec} s)`:""}`).join(" ; ")}.
 Les images jointes sont des aperçus de ces fichiers, dans le même ordre.
 N'invente aucun prix, aucune remise ni promotion : reprends seulement ce qui est écrit dans la demande.
@@ -330,6 +377,125 @@ Rédige une fiche de montage courte et concrète, en français. Réponds uniquem
 }
 
 /* ---------- liste ---------- */
+/* ---------- identités visuelles ---------- */
+/* Les 4 identités du logiciel (montage/outils/fiche.py, THEMES). Une modification est gardée dans la base (collection « identites ») ;
+   la demande emporte une copie de l'identité choisie, que la session de montage met telle quelle dans "theme" de la fiche. */
+const ORIGINES = {
+  foulees:{nom:"Foulées", base:"foulees", encre:"#221F20", clair:"#FFFFFF", fort:"#FFFFFF", accent:"#FF121A", gris:"#A59FA0",
+    titre:{famille:"Anton", poids:400, style:"normal", casse:"maj", espacement:0.005}, texte:{famille:"Inter", poids:700, style:"normal"}},
+  telemetrie:{nom:"Télémétrie", base:"telemetrie", encre:"#0B0B0B", clair:"#E6E6E6", fort:"#FFFFFF", accent:"#FFFFFF", gris:"#8C8C8C",
+    titre:{famille:"Barlow Condensed", poids:900, style:"italic", casse:"maj", espacement:-0.01}, texte:{famille:"Barlow Condensed", poids:600, style:"normal"}},
+  cinema:{nom:"Cinéma", base:"cinema", encre:"#050506", clair:"#E9E6E1", fort:"#F2EFEA", accent:"#F2EFEA", gris:"#8E8B87",
+    titre:{famille:"Bebas Neue", poids:400, style:"normal", casse:"maj", espacement:0.18}, texte:{famille:"Inter", poids:600, style:"normal", casse:"maj", espacement:0.32}},
+  neutre:{nom:"Neutre", base:"neutre", encre:"#101012", clair:"#F2F2F2", fort:"#FFFFFF", accent:"#FFFFFF", gris:"#9A9AA0",
+    titre:{famille:"Inter", poids:900, style:"normal", casse:"maj", espacement:-0.02}, texte:{famille:"Inter", poids:700, style:"normal"}}
+};
+/* polices du logiciel : poids et style pris pour un titre, puis pour un texte */
+const POLICES = {
+  "Anton":[[400,"normal"],[400,"normal"]], "Barlow Condensed":[[900,"italic"],[600,"normal"]], "Inter":[[900,"normal"],[700,"normal"]],
+  "Bebas Neue":[[400,"normal"],[400,"normal"]], "Archivo Black":[[400,"normal"],[400,"normal"]], "Montserrat":[[900,"normal"],[800,"normal"]],
+  "Poppins":[[800,"normal"],[700,"normal"]], "DM Serif Display":[[400,"normal"],[400,"normal"]], "Caveat":[[700,"normal"],[700,"normal"]]
+};
+const COULEURS = [["encre","Fond"],["fort","Titres"],["clair","Textes"],["accent","Couleur forte"],["gris","Gris"]];
+let identites = {};       // id -> identité affichée (origine, ou version modifiée de la base)
+let modifiees = {};       // id -> document de la base
+let edition = null;       // id de la carte ouverte
+const copie = o => JSON.parse(JSON.stringify(o));
+function listeIdentites(){
+  const l = Object.keys(ORIGINES).map(id => ({id, ...(modifiees[id] ? modifiees[id] : ORIGINES[id]), origine:true}));
+  Object.keys(modifiees).filter(id => !ORIGINES[id]).sort().forEach(id => l.push({id, ...modifiees[id], origine:false}));
+  identites = Object.fromEntries(l.map(x => [x.id, x]));
+  return l;
+}
+function themePourFiche(x){
+  const t = {base: ORIGINES[x.base] ? x.base : "neutre"};
+  for(const k of ["encre","clair","fort","accent","gris"]) t[k] = x[k];
+  t.titre = copie(x.titre); t.texte = copie(x.texte);
+  return t;
+}
+function identiteChoisie(){
+  const b=$("identite").querySelector('[aria-pressed="true"]'); const id=b&&b.dataset.v;
+  if(!id || !identites[id]) return null;
+  return {id, nom: identites[id].nom, theme: themePourFiche(identites[id])};
+}
+function css(p){ return `font-family:"${p.famille}",system-ui,sans-serif;font-weight:${p.poids};font-style:${p.style||"normal"};`+
+  (p.casse==="maj"?"text-transform:uppercase;":"")+(p.espacement?`letter-spacing:${p.espacement}em;`:""); }
+function dessinerChoix(){
+  const g=$("identite"); const avant=(g.querySelector('[aria-pressed="true"]')||{}).dataset; const garde=avant&&avant.v;
+  g.textContent="";
+  const tous=[{id:"", nom:"Comme tu veux"}].concat(listeIdentites());
+  tous.forEach(x=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.dataset.v=x.id; b.textContent=x.nom;
+    b.setAttribute("aria-pressed", String((garde||"")===x.id)); g.append(b); });
+  if(!g.querySelector('[aria-pressed="true"]')) g.firstChild.setAttribute("aria-pressed","true");
+}
+chipGroup("identite");
+function idMsg(t){ const m=$("id-msg"); m.textContent=t||""; m.hidden=!t; }
+function dessinerIdentites(){
+  const zone=$("ids"); zone.textContent="";
+  for(const x of listeIdentites()){
+    const c=document.createElement("article"); c.className="idc";
+    const ap=document.createElement("div"); ap.className="apercu"; remplirApercu(ap,x); c.append(ap);
+    const pied=document.createElement("div"); pied.className="pied";
+    const nom=document.createElement("div"); nom.className="nom";
+    const n=document.createElement("span"); n.textContent=x.nom;
+    const etat=document.createElement("small"); etat.textContent = !x.origine ? "créée par toi" : (modifiees[x.id] ? "modifiée" : "d'origine");
+    nom.append(n,etat); pied.append(nom);
+    const pa=document.createElement("div"); pa.className="pastilles"; COULEURS.forEach(([k,lib])=>{ const i=document.createElement("i"); i.style.background=x[k]; i.title=lib; pa.append(i); }); pied.append(pa);
+    if(edition===x.id) pied.append(editeur(x, b=>remplirApercu(ap,b)));
+    else { const a=document.createElement("div"); a.className="actions"; a.append(bouton("Modifier","btn ghost", ()=>{ edition=x.id; dessinerIdentites(); })); pied.append(a); }
+    c.append(pied); zone.append(c);
+  }
+}
+function remplirApercu(ap,x){
+  ap.textContent=""; ap.style.background=x.encre;
+  const tag=document.createElement("span"); tag.className="tag"; tag.textContent="Nouveau"; tag.style.background=x.accent; tag.style.color=clair(x.accent)?x.encre:"#FFFFFF";
+  const t=document.createElement("div"); t.className="t"; t.textContent="Le titre de ta vidéo"; t.setAttribute("style", css(x.titre)+`color:${x.fort}`);
+  const s=document.createElement("div"); s.className="s"; s.textContent="Un texte plus petit, comme un sous-titre."; s.setAttribute("style", css(x.texte)+`color:${x.clair}`);
+  const bande=document.createElement("div"); bande.className="bande"; bande.style.background=x.accent;
+  const haut=document.createElement("div"); haut.style.cssText="display:flex;flex-direction:column;gap:12px"; haut.append(tag,t);
+  const bas=document.createElement("div"); bas.style.cssText="display:flex;flex-direction:column;gap:10px"; bas.append(s,bande);
+  ap.append(haut,bas);
+}
+function clair(hex){ const h=(hex||"#000").replace("#",""); const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16); return (0.299*r+0.587*g+0.114*b)>150; }
+function editeur(x, rafraichir){
+  const brouillon=copie(x);
+  const e=document.createElement("div"); e.className="edit";
+  const lnom=document.createElement("label"); lnom.textContent="Nom"; const inom=document.createElement("input"); inom.type="text"; inom.id="id-nom-"+x.id; inom.value=x.nom; inom.style.maxWidth="60%"; lnom.append(inom); e.append(lnom);
+  COULEURS.forEach(([k,lib])=>{ const l=document.createElement("label"); l.textContent=lib; const i=document.createElement("input"); i.type="color"; i.id=`id-${k}-${x.id}`; i.value=x[k]; i.oninput=()=>{ brouillon[k]=i.value; rafraichir(brouillon); }; l.append(i); e.append(l); });
+  const choixPolice=(cle,lib,rang)=>{ const l=document.createElement("label"); l.textContent=lib; const sel=document.createElement("select"); sel.id=`id-${cle}-${x.id}`;
+    Object.keys(POLICES).forEach(f=>{ const o=document.createElement("option"); o.value=f; o.textContent=f; if(f===x[cle].famille) o.selected=true; sel.append(o); });
+    sel.onchange=()=>{ const [poids,style]=POLICES[sel.value][rang]; brouillon[cle]={...brouillon[cle], famille:sel.value, poids, style}; rafraichir(brouillon); }; l.append(sel); e.append(l); };
+  choixPolice("titre","Police des titres",0); choixPolice("texte","Police des textes",1);
+  const lmaj=document.createElement("label"); lmaj.textContent="Titres en majuscules"; const cmaj=document.createElement("input"); cmaj.type="checkbox"; cmaj.id="id-maj-"+x.id; cmaj.checked=x.titre.casse==="maj";
+  cmaj.onchange=()=>{ brouillon.titre={...brouillon.titre, casse: cmaj.checked?"maj":"normal"}; rafraichir(brouillon); }; lmaj.append(cmaj); e.append(lmaj);
+  const a=document.createElement("div"); a.className="actions";
+  a.append(bouton("Enregistrer","btn", async b=>{ b.disabled=true; idMsg("");
+    try{ const doc={nom: inom.value.trim()||x.nom, base:x.base, encre:brouillon.encre, clair:brouillon.clair, fort:brouillon.fort, accent:brouillon.accent, gris:brouillon.gris,
+        titre:brouillon.titre, texte:brouillon.texte, majLe:new Date().toISOString()};
+      await db.collection("identites").doc(x.id).set(doc); edition=null; }
+    catch(err){ b.disabled=false; idMsg("L'enregistrement a échoué. Réessaie."); } }));
+  a.append(bouton("Annuler","btn ghost", ()=>{ edition=null; dessinerIdentites(); }));
+  if(modifiees[x.id]) a.append(bouton(x.origine?"Revenir à l'origine":"Supprimer","btn ghost", async b=>{ b.disabled=true;
+    try{ await db.collection("identites").doc(x.id).delete(); edition=null; } catch(err){ b.disabled=false; idMsg("Ça n'a pas marché. Réessaie."); } }));
+  e.append(a);
+  return e;
+}
+$("nouvelle-id").addEventListener("click", async ()=>{
+  if(!db) return idMsg("Ouvre cette page dans claude.ai pour créer une identité.");
+  const id="perso-"+Date.now().toString(36); const base=ORIGINES.foulees;
+  try{ await db.collection("identites").doc(id).set({...copie(base), nom:"Ma nouvelle identité", majLe:new Date().toISOString()}); edition=id; }
+  catch(e){ idMsg("La création a échoué. Réessaie."); }
+});
+function onglet(nom){
+  const ids = nom==="identites";
+  $("tab-montages").setAttribute("aria-selected", String(!ids)); $("tab-identites").setAttribute("aria-selected", String(ids));
+  $("vue-montages").hidden=ids; $("vue-identites").hidden=!ids;
+  try{ localStorage.setItem("atelier-onglet", nom); }catch(e){}
+}
+$("tab-montages").onclick=()=>onglet("montages"); $("tab-identites").onclick=()=>onglet("identites");
+try{ if(localStorage.getItem("atelier-onglet")==="identites") onglet("identites"); }catch(e){}
+dessinerChoix(); dessinerIdentites();
+
 /* La vidéo finie revient en morceaux de 18 Mo (pleine qualité) : on les recolle ici. */
 const vues={};
 function resultatMorceaux(j){ const r=j.resultat; if(!r) return []; return r.morceaux&&r.morceaux.length ? r.morceaux : (r.asset_id?[r.asset_id]:[]); }
@@ -347,7 +513,7 @@ function render(){
     const top=document.createElement("div"); top.className="job-top";
     const info=document.createElement("div");
     const h=document.createElement("h3"); h.textContent=(j.objectif||"Vidéo")+" · "+(j.duree||"");
-    const m=document.createElement("p"); m.className="meta"; m.textContent=`${(j.fichiers||[]).length} fichier(s) · envoyé ${fmtDate(j.creeLe)}`;
+    const m=document.createElement("p"); m.className="meta"; m.textContent=`${(j.fichiers||[]).length} fichier(s) · envoyé ${fmtDate(j.creeLe)}`+(j.identite?` · identité ${j.identite.nom}`:"");
     info.append(h,m);
     const st=STATUTS[j.statut]||STATUTS.en_attente;
     const pill=document.createElement("span"); pill.className="pill "+st.c; pill.textContent=st.t;
@@ -433,6 +599,7 @@ async function recuperer(j, btn){
   }
   if(!db){ $("list").innerHTML='<div class="empty">Connecte-toi pour voir tes vidéos.</div>'; return; }
   const timer=setTimeout(()=>{ if(!jobs.length) $("list").innerHTML='<div class="empty">Tes vidéos ne se chargent pas pour l\'instant. Vérifie ta connexion.</div>'; },10000);
+  db.collection("identites").onSnapshot(snap=>{ modifiees=Object.fromEntries(snap.docs.map(d=>[d.id, d.data()])); dessinerChoix(); dessinerIdentites(); }, ()=>{});
   db.doc("reglages/branchement").onSnapshot(s=>{ branchement=s.exists?s.data():null; $("branchement").hidden=!!(branchement&&branchement.trigger_id); }, ()=>{});
   db.collection("demandes").orderBy("creeLe","desc").limit(100).onSnapshot(snap=>{
     clearTimeout(timer);
