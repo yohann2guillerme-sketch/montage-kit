@@ -1,0 +1,15 @@
+node_modules/
+__pycache__/
+*.pyc
+.travail/
+sorties/
+clients/
+*.mp4
+*.mov
+*.MOV
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.pdf
+.env

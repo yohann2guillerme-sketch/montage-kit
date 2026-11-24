@@ -1,0 +1,3 @@
+RNNoise model "somnolent-hogwash" (rnnoise-models, GregorR).
+The authors state: "none of this work is creative and thus none of it is subject to copyright."
+https://github.com/GregorR/rnnoise-models

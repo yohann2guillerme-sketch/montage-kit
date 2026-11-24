@@ -1,0 +1,867 @@
+{
+ "source": "SFX Kit (Wyzowl), CC0 1.0",
+ "sons": {
+  "appear-flip-quick": {
+   "nom": "Flip, quick",
+   "categorie": "appear-and-vanish",
+   "description": "A card flipping over quickly, landing with a light tap.",
+   "pour": [
+    "A card flipping to reveal its back",
+    "Tiles turning over",
+    "Quick reveals"
+   ],
+   "eviter": [
+    "Things that simply slide or fade (a whoosh suits those)"
+   ],
+   "tags": [
+    "appear",
+    "disappear",
+    "reveal",
+    "flip quick",
+    "motion graphics",
+    "natural"
+   ],
+   "duree": 0.178,
+   "synchro": 0.155,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/appear-flip-quick.wav"
+  },
+  "appear-materialise": {
+   "nom": "Materialise",
+   "categorie": "appear-and-vanish",
+   "description": "Something materialising: particles gathering in and settling.",
+   "pour": [
+    "An element appearing out of particles",
+    "A product or idea taking shape",
+    "Soft, magical entrances"
+   ],
+   "eviter": [
+    "Things that simply slide or fade (a whoosh suits those)"
+   ],
+   "tags": [
+    "appear",
+    "disappear",
+    "reveal",
+    "materialise",
+    "motion graphics",
+    "natural"
+   ],
+   "duree": 1.209,
+   "synchro": 0.026,
+   "lufs": -25,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/appear-materialise.wav"
+  },
+  "celebration-applause-small": {
+   "nom": "Applause, a few people",
+   "categorie": "celebration",
+   "description": "A few people applauding warmly.",
+   "pour": [
+    "Praise for a person or a team",
+    "A small win or a milestone",
+    "A presentation or a demo ending"
+   ],
+   "eviter": [
+    "Serious or sensitive moments",
+    "On top of speech: it's busy"
+   ],
+   "tags": [
+    "celebration",
+    "party",
+    "success",
+    "applause small",
+    "applause",
+    "clapping",
+    "crowd",
+    "natural"
+   ],
+   "duree": 2.938,
+   "synchro": 0,
+   "lufs": -24,
+   "sous_la_voix_db": -5,
+   "fichier": "kit/celebration-applause-small.wav"
+  },
+  "celebration-popper": {
+   "nom": "Party popper",
+   "categorie": "celebration",
+   "description": "A party popper: a sharp pop and streamers rustling out.",
+   "pour": [
+    "Congratulations, birthdays, anniversaries",
+    "A celebration starting",
+    "A new feature or milestone unveiled"
+   ],
+   "eviter": [
+    "Serious or sensitive moments",
+    "On top of speech: it's busy"
+   ],
+   "tags": [
+    "celebration",
+    "party",
+    "success",
+    "popper",
+    "natural"
+   ],
+   "duree": 0.953,
+   "synchro": 0.01,
+   "lufs": -21,
+   "sous_la_voix_db": -5,
+   "fichier": "kit/celebration-popper.wav"
+  },
+  "click-tap-soft": {
+   "nom": "Tap, soft",
+   "categorie": "interface",
+   "description": "A soft fingertip tap on glass.",
+   "pour": [
+    "Touchscreen taps in app demos",
+    "A finger tapping a card or tile",
+    "Selecting an item on a phone screen"
+   ],
+   "eviter": [
+    "Moments that need to be noticed over music",
+    "Mouse clicks (use mouse)"
+   ],
+   "tags": [
+    "click",
+    "tap",
+    "soft",
+    "ui",
+    "interface",
+    "natural"
+   ],
+   "duree": 0.016,
+   "synchro": 0.009,
+   "lufs": -29,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/click-tap-soft.wav"
+  },
+  "data-countup-short": {
+   "nom": "Count-up, short",
+   "categorie": "data",
+   "description": "A short count-up: ticks that speed up and settle, about 0.6 seconds.",
+   "pour": [
+    "A statistic counting up to its value",
+    "A percentage climbing",
+    "A price or total adding up"
+   ],
+   "eviter": [
+    "Counts much longer than the run: use the next length or a count tick per step"
+   ],
+   "tags": [
+    "data",
+    "countup",
+    "short",
+    "numbers",
+    "chart",
+    "natural"
+   ],
+   "duree": 0.621,
+   "synchro": 0,
+   "lufs": -25,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/data-countup-short.wav"
+  },
+  "data-number-land": {
+   "nom": "Number landing",
+   "categorie": "data",
+   "description": "A woody knock with a small, bright ping: a number landing.",
+   "pour": [
+    "The final number of a count-up landing",
+    "A key figure appearing",
+    "A result confirmed"
+   ],
+   "eviter": [
+    "Things that aren't data (use whooshes, pops or shimmers)"
+   ],
+   "tags": [
+    "data",
+    "land",
+    "numbers",
+    "chart",
+    "natural"
+   ],
+   "duree": 0.233,
+   "synchro": 0.011,
+   "lufs": -22,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/data-number-land.wav"
+  },
+  "digital-scan-subtle": {
+   "nom": "Scan, subtle",
+   "categorie": "digital",
+   "description": "A soft scan: a gentle tone gliding up with slow pulses.",
+   "pour": [
+    "Scanning a document, face or code",
+    "A progress sweep or a search",
+    "Analysing or reading data"
+   ],
+   "eviter": [
+    "Natural, physical subjects (use foley, impacts or whooshes)",
+    "Moments that must cut through music (use clear)"
+   ],
+   "tags": [
+    "digital",
+    "scan",
+    "subtle",
+    "tech",
+    "data"
+   ],
+   "duree": 0.841,
+   "synchro": 0,
+   "lufs": -26,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/digital-scan-subtle.wav"
+  },
+  "impact-light-firm": {
+   "nom": "Impact, light, on a firm surface",
+   "categorie": "impacts",
+   "description": "A light wooden tap: a small object set down on a table.",
+   "pour": [
+    "Small elements landing or snapping into place",
+    "Icons dropping into a grid",
+    "Labels and tags settling",
+    "Natural, everyday landings"
+   ],
+   "eviter": [
+    "Big, heavy moves"
+   ],
+   "tags": [
+    "impact",
+    "hit",
+    "land",
+    "drop",
+    "knock",
+    "light",
+    "natural"
+   ],
+   "duree": 0.099,
+   "synchro": 0.011,
+   "lufs": -25,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/impact-light-firm.wav"
+  },
+  "money-coin-drop": {
+   "nom": "Coin drop",
+   "categorie": "money",
+   "description": "A coin dropped on a table: it rings, bounces and rattles flat.",
+   "pour": [
+    "A saving or a small payment",
+    "Tips, change, a coin of the realm",
+    "One coin landing on a graph or pile"
+   ],
+   "eviter": [
+    "Abstract money moments that are better as a chart or a number (use data sounds)"
+   ],
+   "tags": [
+    "money",
+    "cash",
+    "payment",
+    "coin drop",
+    "coin",
+    "natural"
+   ],
+   "duree": 0.681,
+   "synchro": 0.01,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/money-coin-drop.wav"
+  },
+  "money-register": {
+   "nom": "Cash register",
+   "categorie": "money",
+   "description": "A cash register: a key, the bell's ching and the drawer sliding open.",
+   "pour": [
+    "A sale made, revenue in",
+    "Ka-ching: profit, pricing and offers",
+    "Shops and retail"
+   ],
+   "eviter": [
+    "Abstract money moments that are better as a chart or a number (use data sounds)"
+   ],
+   "tags": [
+    "money",
+    "cash",
+    "payment",
+    "register",
+    "natural"
+   ],
+   "duree": 0.912,
+   "synchro": 0.093,
+   "lufs": -22,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/money-register.wav"
+  },
+  "move-bounce": {
+   "nom": "Ball bouncing",
+   "categorie": "bounce-spin-zoom",
+   "description": "A rubber ball bouncing to rest: bonk, bonk, bonk-bonk-bonk.",
+   "pour": [
+    "Elements bouncing into place",
+    "Playful, springy animation",
+    "A ball, a dot or a character bouncing"
+   ],
+   "eviter": [
+    "Serious or corporate scenes"
+   ],
+   "tags": [
+    "motion",
+    "bounce",
+    "animation",
+    "natural"
+   ],
+   "duree": 0.926,
+   "synchro": 0.011,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/move-bounce.wav"
+  },
+  "move-zoom-in": {
+   "nom": "Zoom in",
+   "categorie": "bounce-spin-zoom",
+   "description": "Zooming in: air rushing nearer and rising to the moment it arrives.",
+   "pour": [
+    "Zooming into a detail or a screen",
+    "Pushing in on a scene",
+    "Focusing on one thing"
+   ],
+   "eviter": [
+    "Small, subtle moves (use a soft whoosh)"
+   ],
+   "tags": [
+    "motion",
+    "zoom in",
+    "zoom",
+    "camera",
+    "animation",
+    "natural"
+   ],
+   "duree": 0.566,
+   "synchro": 0.489,
+   "lufs": -22,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/move-zoom-in.wav"
+  },
+  "notification-message-in-soft": {
+   "nom": "Message arriving, soft",
+   "categorie": "notifications",
+   "description": "A little bubble and a warm note: a new message.",
+   "pour": [
+    "A message or email arriving",
+    "A chat bubble appearing",
+    "A new notification on a phone"
+   ],
+   "eviter": [
+    "Sending (use message out)",
+    "Moments that must cut through loud music (use clear)"
+   ],
+   "tags": [
+    "notification",
+    "message in",
+    "soft",
+    "ui",
+    "tone",
+    "marimba",
+    "natural"
+   ],
+   "duree": 0.423,
+   "synchro": 0.046,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/notification-message-in-soft.wav"
+  },
+  "notification-success-soft": {
+   "nom": "Success, soft",
+   "categorie": "notifications",
+   "description": "A warm, rising three-note marimba arpeggio: done.",
+   "pour": [
+    "A task completed or a form submitted",
+    "A tick or checkmark appearing",
+    "Goals reached, positive results"
+   ],
+   "eviter": [
+    "Errors or warnings",
+    "Moments that must cut through loud music (use clear)"
+   ],
+   "tags": [
+    "notification",
+    "success",
+    "soft",
+    "ui",
+    "tone",
+    "marimba",
+    "natural"
+   ],
+   "duree": 0.53,
+   "synchro": 0,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/notification-success-soft.wav"
+  },
+  "pop-small-in": {
+   "nom": "Pop in, small",
+   "categorie": "pops",
+   "description": "A tiny, bright pop that lifts as it appears.",
+   "pour": [
+    "Elements appearing or scaling up into view",
+    "Icons, badges and stickers popping in",
+    "Points on a chart appearing",
+    "Small elements: dots, icons, badges"
+   ],
+   "eviter": [
+    "Things leaving the screen (use pop out)",
+    "Big shapes"
+   ],
+   "tags": [
+    "pop",
+    "appear",
+    "small",
+    "natural"
+   ],
+   "duree": 0.04,
+   "synchro": 0.01,
+   "lufs": -25,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/pop-small-in.wav"
+  },
+  "pop-small-out": {
+   "nom": "Pop out, small",
+   "categorie": "pops",
+   "description": "A tiny, soft pop that drops away.",
+   "pour": [
+    "Elements disappearing or scaling down",
+    "Closing or dismissing something",
+    "Removing an item from a list",
+    "Small elements: dots, icons, badges"
+   ],
+   "eviter": [
+    "Things arriving (use pop in)",
+    "Big shapes"
+   ],
+   "tags": [
+    "pop",
+    "disappear",
+    "small",
+    "natural"
+   ],
+   "duree": 0.051,
+   "synchro": 0.011,
+   "lufs": -25,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/pop-small-out.wav"
+  },
+  "props-page-turn": {
+   "nom": "Page turn",
+   "categorie": "everyday-props",
+   "description": "A page turning: lifted at the corner, swung over and falling flat.",
+   "pour": [
+    "Turning to the next page or chapter",
+    "Reports, documents and guides",
+    "Moving on to the next step"
+   ],
+   "eviter": [
+    "Abstract ideas better shown with a UI or motion sound"
+   ],
+   "tags": [
+    "props",
+    "objects",
+    "foley",
+    "page turn",
+    "natural"
+   ],
+   "duree": 0.54,
+   "synchro": 0,
+   "lufs": -26,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/props-page-turn.wav"
+  },
+  "props-shop-bell": {
+   "nom": "Shop door bell",
+   "categorie": "everyday-props",
+   "description": "A shop door bell: a small brass bell jingling on its spring.",
+   "pour": [
+    "A customer walking into a shop",
+    "Retail, small businesses and cafés",
+    "A new arrival"
+   ],
+   "eviter": [
+    "Abstract ideas better shown with a UI or motion sound"
+   ],
+   "tags": [
+    "props",
+    "objects",
+    "foley",
+    "shop bell",
+    "natural"
+   ],
+   "duree": 1.415,
+   "synchro": 0,
+   "lufs": -23,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/props-shop-bell.wav"
+  },
+  "riser-1s-soft": {
+   "nom": "Riser, 1 s, soft",
+   "categorie": "risers-and-fallers",
+   "description": "A 1-second soft, airy rise that builds to its peak at the end.",
+   "pour": [
+    "Building up to a reveal: a logo, a product, a big number",
+    "Leading into a new section",
+    "A short lift before something appears"
+   ],
+   "eviter": [
+    "Reveals that land before the rise ends: the peak is at its end",
+    "Big, energetic moments (use strong)"
+   ],
+   "tags": [
+    "riser",
+    "build",
+    "swell",
+    "1s",
+    "soft",
+    "air",
+    "natural"
+   ],
+   "duree": 1.19,
+   "synchro": 0.982,
+   "lufs": -24,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/riser-1s-soft.wav"
+  },
+  "shimmer-short-soft": {
+   "nom": "Shimmer, short, soft",
+   "categorie": "shimmers",
+   "description": "A short shimmer: a few soft, glassy glints that ring out gently.",
+   "pour": [
+    "Gentle highlights: a feature, a benefit, a tick",
+    "Elements lighting up or being highlighted",
+    "A quick highlight"
+   ],
+   "eviter": [
+    "Negative or serious moments"
+   ],
+   "tags": [
+    "shimmer",
+    "sparkle",
+    "glint",
+    "reveal",
+    "magic",
+    "soft",
+    "short",
+    "natural"
+   ],
+   "duree": 0.478,
+   "synchro": 0.012,
+   "lufs": -25,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/shimmer-short-soft.wav"
+  },
+  "sting-warm-short": {
+   "nom": "Logo sting, warm, short",
+   "categorie": "logo-stings",
+   "description": "A warm marimba sting: a quick roll up into a rich, rounded chord.",
+   "pour": [
+    "Friendly, human brands",
+    "A logo at the end of an explainer",
+    "Warm, reassuring endings",
+    "A logo that appears at once"
+   ],
+   "eviter": [
+    "Mid-film transitions: a sting says 'ending' or 'brand moment'",
+    "On top of speech: time its hit to a pause in the voice"
+   ],
+   "tags": [
+    "sting",
+    "logo",
+    "reveal",
+    "signature",
+    "ending",
+    "musical",
+    "warm",
+    "short",
+    "natural"
+   ],
+   "duree": 1.672,
+   "synchro": 0.107,
+   "lufs": -23,
+   "sous_la_voix_db": -6,
+   "fichier": "kit/sting-warm-short.wav"
+  },
+  "swipe-medium-soft": {
+   "nom": "Swipe, medium and soft",
+   "categorie": "swipes",
+   "description": "A soft fingertip swipe across a screen.",
+   "pour": [
+    "Swiping a card across in an app demo",
+    "Moving between tabs or pages",
+    "Swipe-to-unlock and swipe-to-confirm"
+   ],
+   "eviter": [
+    "Objects flying through the air (use a whoosh or swish)",
+    "Moments that need to cut through music (use firm)"
+   ],
+   "tags": [
+    "swipe",
+    "ui",
+    "touch",
+    "screen",
+    "finger",
+    "glass",
+    "medium",
+    "soft",
+    "natural"
+   ],
+   "duree": 0.293,
+   "synchro": 0,
+   "lufs": -27,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/swipe-medium-soft.wav"
+  },
+  "time-clock": {
+   "nom": "Clock ticking",
+   "categorie": "time",
+   "description": "A clock ticking: tick, tock, once a second.",
+   "pour": [
+    "Time passing, waiting",
+    "Saving time, deadlines, schedules",
+    "Loop it under a scene"
+   ],
+   "eviter": [
+    "Moments that need no sense of time"
+   ],
+   "tags": [
+    "time",
+    "clock",
+    "natural"
+   ],
+   "duree": 3.037,
+   "synchro": 0,
+   "lufs": -27,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/time-clock.wav"
+  },
+  "time-stopwatch": {
+   "nom": "Stopwatch",
+   "categorie": "time",
+   "description": "A stopwatch: a click to start, fine ticking, a click to stop.",
+   "pour": [
+    "Timing something: speed, records, races",
+    "How long something takes",
+    "Quick results"
+   ],
+   "eviter": [
+    "Moments that need no sense of time"
+   ],
+   "tags": [
+    "time",
+    "clock",
+    "stopwatch",
+    "natural"
+   ],
+   "duree": 1.628,
+   "synchro": 0,
+   "lufs": -26,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/time-stopwatch.wav"
+  },
+  "tone-ding-mid": {
+   "nom": "Ding, middle",
+   "categorie": "tones",
+   "description": "A small bell's clear ding (C, middle).",
+   "pour": [
+    "Highlighting a key point, a feature or a benefit",
+    "A tick, an answer or a result appearing",
+    "An idea: the lightbulb moment"
+   ],
+   "eviter": [
+    "Errors or warnings"
+   ],
+   "tags": [
+    "tone",
+    "ding",
+    "bell",
+    "mid",
+    "note",
+    "musical",
+    "natural"
+   ],
+   "duree": 1.064,
+   "synchro": 0,
+   "lufs": -23,
+   "sous_la_voix_db": -3,
+   "fichier": "kit/tone-ding-mid.wav"
+  },
+  "whoosh-fast-soft": {
+   "nom": "Whoosh, fast and soft",
+   "categorie": "whooshes",
+   "description": "A quick, gentle puff of air with a soft edge and no weight.",
+   "pour": [
+    "Small icons or text sliding in",
+    "A line of text changing",
+    "Tooltips, chips and small UI panels moving",
+    "List items arriving one after another (at a lower gain)"
+   ],
+   "eviter": [
+    "Heavy objects",
+    "Big scene changes"
+   ],
+   "tags": [
+    "whoosh",
+    "swish",
+    "transition",
+    "movement",
+    "air",
+    "natural",
+    "quick",
+    "subtle"
+   ],
+   "duree": 0.25,
+   "synchro": 0.099,
+   "lufs": -24,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/whoosh-fast-soft.wav"
+  },
+  "whoosh-medium-soft": {
+   "nom": "Whoosh, medium and soft",
+   "categorie": "whooshes",
+   "description": "A smooth, gentle sweep of air that rises and fades without an edge.",
+   "pour": [
+    "Panels sliding in",
+    "Gentle card reveals",
+    "Backgrounds shifting",
+    "Calm transitions between explainer scenes"
+   ],
+   "eviter": [
+    "Snappy, quick moves",
+    "Energetic edits"
+   ],
+   "tags": [
+    "whoosh",
+    "swish",
+    "transition",
+    "movement",
+    "air",
+    "natural",
+    "standard",
+    "subtle"
+   ],
+   "duree": 0.543,
+   "synchro": 0.229,
+   "lufs": -24,
+   "sous_la_voix_db": -2,
+   "fichier": "kit/whoosh-medium-soft.wav"
+  },
+  "writing-highlighter": {
+   "nom": "Highlighter",
+   "categorie": "writing-and-drawing",
+   "description": "A highlighter swept across a line of text.",
+   "pour": [
+    "Highlighting a key line or number",
+    "Marking what matters"
+   ],
+   "eviter": [
+    "Typed text (use keyboard)",
+    "Loud moments: it's a quiet, close sound"
+   ],
+   "tags": [
+    "writing",
+    "drawing",
+    "highlighter",
+    "handwriting",
+    "natural"
+   ],
+   "duree": 0.381,
+   "synchro": 0,
+   "lufs": -27,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/writing-highlighter.wav"
+  },
+  "writing-marker-draw": {
+   "nom": "Whiteboard marker drawing",
+   "categorie": "writing-and-drawing",
+   "description": "A marker on a whiteboard, drawing a few long strokes.",
+   "pour": [
+    "Lines, arrows, shapes and diagrams being drawn",
+    "Whiteboard animations",
+    "Sketching an idea"
+   ],
+   "eviter": [
+    "Typed text (use keyboard)",
+    "Loud moments: it's a quiet, close sound"
+   ],
+   "tags": [
+    "writing",
+    "drawing",
+    "marker",
+    "draw",
+    "handwriting",
+    "whiteboard",
+    "natural"
+   ],
+   "duree": 1.063,
+   "synchro": 0,
+   "lufs": -25,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/writing-marker-draw.wav"
+  },
+  "writing-pen-tick": {
+   "nom": "Pen tick",
+   "categorie": "writing-and-drawing",
+   "description": "A pen on paper, ticking a box.",
+   "pour": [
+    "A checkbox being ticked",
+    "A to-do list done",
+    "Approving something"
+   ],
+   "eviter": [
+    "Typed text (use keyboard)",
+    "Loud moments: it's a quiet, close sound"
+   ],
+   "tags": [
+    "writing",
+    "drawing",
+    "pen",
+    "tick",
+    "handwriting",
+    "natural"
+   ],
+   "duree": 0.242,
+   "synchro": 0.155,
+   "lufs": -27,
+   "sous_la_voix_db": -1,
+   "fichier": "kit/writing-pen-tick.wav"
+  }
+ },
+ "situations": {
+  "swish": "whoosh-fast-soft",
+  "zoom": "move-zoom-in",
+  "souffle": "whoosh-medium-soft",
+  "pop": "pop-small-in",
+  "pop-sortie": "pop-small-out",
+  "apparition": "appear-materialise",
+  "flip": "appear-flip-quick",
+  "clic": "click-tap-soft",
+  "impact": "impact-light-firm",
+  "ding": "tone-ding-mid",
+  "eclat": "shimmer-short-soft",
+  "trait": "writing-marker-draw",
+  "coche": "writing-pen-tick",
+  "surligne": "writing-highlighter",
+  "succes": "notification-success-soft",
+  "caisse": "money-register",
+  "pieces": "money-coin-drop",
+  "chiffre": "data-countup-short",
+  "chiffre-fin": "data-number-land",
+  "chrono": "time-stopwatch",
+  "horloge": "time-clock",
+  "analyse": "digital-scan-subtle",
+  "page": "props-page-turn",
+  "magasin": "props-shop-bell",
+  "fete": "celebration-popper",
+  "applaudissements": "celebration-applause-small",
+  "message": "notification-message-in-soft",
+  "montee": "riser-1s-soft",
+  "fin": "sting-warm-short",
+  "rebond": "move-bounce",
+  "glissement": "swipe-medium-soft"
+ }
+}
