@@ -44,6 +44,7 @@ textarea:focus,input:focus,.chip:focus-visible,.btn:focus-visible,.drop:focus-wi
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .btn.ghost{background:var(--card2);color:var(--fg);border:1px solid var(--line);font-size:.95rem;padding:11px 14px;min-height:44px}
 .btn.vif{background:var(--vif);color:var(--vif-fg);font-weight:700}
+.btn.ghost.danger{color:var(--bad);border-color:transparent;background:transparent}
 .msg{border-radius:12px;padding:12px 14px;font-size:.95rem}
 .msg.info{background:var(--soft)}
 .msg.warn{background:var(--warn-bg);color:var(--warn)}
@@ -637,11 +638,35 @@ const typeDe = j => ["Reel","Story","Post"].includes(j.type) ? j.type : "Reel";
 const NOMS_CAT={Reel:"Reels", Story:"Stories", Post:"Posts"};
 $("categories").addEventListener("click", e=>{ const b=e.target.closest("[data-cat]"); if(!b) return;
   categorie=b.dataset.cat; try{ localStorage.setItem("atelier-categorie", categorie); }catch(err){} render(); });
+/* Description : la session de montage l'écrit ; si elle manque sur une vidéo finie, la page la fait écrire une fois. */
+const legendesEnCours={};
+async function ecrireLegende(j){
+  if(!sample || legendesEnCours[j.id]) return;
+  legendesEnCours[j.id]=true;
+  const story=typeDe(j)==="Story";
+  const consigne=`Tu écris pour les réseaux sociaux d'un commerce local en France (ton pro mais simple et sympa, tous niveaux, tutoiement).
+Vidéo : ${typeDe(j)}. Objectif : ${j.objectif||""}. Contenu : ${j.contenu||""}. Autre demande : ${j.autre||"aucune"}.
+${j.fiche&&j.fiche.accroche?`Accroche de la vidéo : ${j.fiche.accroche}. Fin : ${j.fiche.fin||""}.`:""}
+N'invente aucun prix, aucune remise, aucune promotion, aucune date ni aucun nom : seulement ce qui est écrit ci-dessus.
+${story?"Écris deux lignes : « Texte : » le texte court à poser sur la story, puis « Sticker : » une idée de sticker (sondage, question ou lien).":"Écris la description à coller sous la vidéo : une accroche, 2 à 4 phrases courtes, un appel à venir ou à réagir, puis 5 hashtags au plus. Un ou deux émojis au plus."}
+Réponds seulement avec le texte, sans guillemets ni titre.`;
+  try{
+    const r=await sample(consigne,{modelTier:"default"});
+    const t=(r&&r.text||"").trim();
+    if(t) await db.collection("demandes").doc(j.id).update({legende:t, legendeAuto:true});
+  }catch(e){ /* pas de description : la vidéo reste utilisable */ }
+}
 function blocLegende(j){
+  if(j.statut==="terminee" && !j.legende && sample){
+    const d=document.createElement("div"); d.className="legende";
+    const t=document.createElement("b"); t.textContent="Description";
+    const p=document.createElement("p"); p.className="hint"; p.textContent="Claude écrit la description…";
+    d.append(t,p); ecrireLegende(j); return d;
+  }
   if(j.statut!=="terminee" || !j.legende) return null;
   const story=typeDe(j)==="Story";
   const d=document.createElement("div"); d.className="legende";
-  const t=document.createElement("b"); t.textContent= story ? "Texte et idée pour la story" : "Légende à copier";
+  const t=document.createElement("b"); t.textContent= story ? "Texte et idée pour la story" : "Description à copier";
   const p=document.createElement("p"); p.textContent=j.legende;
   const a=document.createElement("div"); a.className="actions";
   a.append(bouton("Copier","btn ghost", async b=>{ try{ await navigator.clipboard.writeText(j.legende); b.textContent="Copié"; }catch(e){ b.textContent="Sélectionne le texte et copie-le"; } setTimeout(()=>{b.textContent="Copier";},2500); }));
@@ -729,8 +754,30 @@ function render(){
       add("Fin",j.fiche.fin); add("Musique",j.fiche.musique); add("À vérifier",j.fiche.remarques);
       d.append(s,ul); card.append(d);
     }
+    const sup=document.createElement("div"); sup.className="actions";
+    sup.append(bouton("Supprimer","btn ghost danger", b=>supprimer(j,b)));
+    card.append(sup);
     L.append(card);
   }
+}
+/* Supprimer : deux appuis (pas de fenêtre de confirmation) ; efface la vidéo finie, les images pointées,
+   les fichiers envoyés s'ils ne servent à aucune autre vidéo, puis la demande. */
+const aConfirmer={};
+async function supprimer(j, btn){
+  if(!aConfirmer[j.id]){
+    aConfirmer[j.id]=true; btn.textContent="Toucher encore pour supprimer";
+    setTimeout(()=>{ delete aConfirmer[j.id]; if(btn.isConnected) btn.textContent="Supprimer"; },4000);
+    return;
+  }
+  btn.disabled=true; btn.textContent="Suppression…";
+  const autres=new Set(jobs.filter(x=>x.id!==j.id).flatMap(x=>(x.fichiers||[]).flatMap(f=>f.morceaux||[])));
+  const ids=[...resultatMorceaux(j), ...(j.modifications||[]).map(m=>m.image).filter(Boolean),
+             ...(j.fichiers||[]).flatMap(f=>f.morceaux||[]).filter(id=>!autres.has(id))];
+  try{
+    await db.collection("demandes").doc(j.id).delete();
+    if(assets) for(const id of ids){ try{ await assets.delete(id); }catch(e){} }
+    if(vues[j.id]){ URL.revokeObjectURL(vues[j.id]); delete vues[j.id]; }
+  }catch(e){ btn.disabled=false; btn.textContent="Échec : réessaie"; }
 }
 /* Publier : la page ne publie rien elle-même. Elle ouvre le partage du téléphone (Instagram, Facebook…) avec la vidéo,
    légende copiée ; c'est la personne qui valide la publication dans l'appli. */

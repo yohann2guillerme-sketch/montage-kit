@@ -115,9 +115,12 @@ formulaire, on choisit l'identité d'une vidéo ; la demande en emporte une copi
 ## Mes vidéos : Reels, Stories, Posts
 
 La liste des vidéos est rangée en trois onglets selon le type choisi (une ancienne demande sans type va dans Reels). Sous chaque
-vidéo prête, la légende écrite par la session (« legende ») s'affiche avec un bouton « Copier ». Rien n'est publié par la page :
+vidéo prête, la légende écrite par la session (« legende ») s'affiche avec un bouton « Copier » ; si elle manque, la page la fait écrire une fois par le Claude du compte (mêmes règles). Rien n'est publié par la page :
 « Publier » ouvre le partage du téléphone (Instagram, Facebook…) avec la vidéo et copie la légende ; la personne valide
 elle-même dans l'appli. Sur ordinateur, la vidéo est enregistrée à la place.
+
+« Supprimer » (deux appuis) efface la demande, sa vidéo finie, ses images pointées et ses fichiers envoyés s'ils ne servent à
+aucune autre vidéo. Une session de montage qui ne trouve plus sa demande s'arrête sans rien faire.
 
 ## Pointer sur la vidéo finie
 
