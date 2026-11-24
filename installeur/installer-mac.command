@@ -3,7 +3,7 @@
 # Ce qu'il installe : Homebrew (si absent), Python 3.12, ffmpeg, Node, les bibliothèques Python du logiciel (dans .venv, dans ce dossier)
 # et le moteur vidéo (Remotion, dans montage/moteur). Rien n'est publié, aucun compte n'est touché.
 set -e
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 DOSSIER="$(pwd)"
 echo ""
 echo "=== Atelier montage : installation dans $DOSSIER ==="
